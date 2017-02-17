@@ -29,14 +29,20 @@ TODO: Add long description of the pod here.
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '8.0'
+  s.default_subspecs = 'Bridge' 
+  s.frameworks = 'UIKit', 'WebKit'
 
-  s.source_files = 'XMNWeb/Classes/**/*'
-  
-  # s.resource_bundles = {
-  #   'XMNWeb' => ['XMNWeb/Assets/*.png']
-  # }
+  s.source_files = 'XMNWeb/Classes/Core/**/*'
+  s.public_header_files = 'XMNWeb/Classes/Core/*.h'
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.subspec 'Bridge' do |sp|
+  	sp.source_files = 'XMNWeb/Classes/Bridge/**/*'
+	sp.public_header_files = 'XMNWeb/Classes/Bridge/*.h'
+	sp.resource_bundles = {
+    'XMNWebBridge' => ['XMNWeb/Assets/Bridge/**/*']
+	}
+
+	sp.user_target_xcconfig = {'XMNBRIDGE_ENABLED' => 'YES'}
+	sp.pod_target_xcconfig = {'XMNBRIDGE_ENABLED' => 'YES'}
+  end
 end
