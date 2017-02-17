@@ -3,9 +3,8 @@ use_frameworks!
 target 'XMNWeb_Example' do
   pod 'XMNWeb', :path => '../'
 
-  target 'XMNWeb_Tests' do
-    inherit! :search_paths
-
+end
+target 'XMNWeb_Tests' do
+    pod 'XMNWeb', :path => '../'
     
-  end
 end

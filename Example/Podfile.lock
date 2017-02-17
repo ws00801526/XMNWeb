@@ -1,0 +1,18 @@
+PODS:
+  - XMNWeb (0.1.0):
+    - XMNWeb/Bridge (= 0.1.0)
+  - XMNWeb/Bridge (0.1.0)
+
+DEPENDENCIES:
+  - XMNWeb (from `../`)
+
+EXTERNAL SOURCES:
+  XMNWeb:
+    :path: ../
+
+SPEC CHECKSUMS:
+  XMNWeb: 998277261268b95c091db5d92fba8cf1383dcee2
+
+PODFILE CHECKSUM: 22f1b622dd4d4f6a2ea84a87dc9a72578e293b2c
+
+COCOAPODS: 1.1.1
