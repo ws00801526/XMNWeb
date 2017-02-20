@@ -54,9 +54,111 @@
 
 #pragma mark - Public Method
 
+- (BOOL)shouldContinueWebRequest:(NSURLRequest *)request {
+    
+    if (!request) {
+        
+        return NO;
+    }
+    
+    NSURL * url = request.URL;
+    if ([url.absoluteString isEqual:self.invokeScheme]) {
+        NSString * js = [NSString stringWithFormat:@"%@._messageQueue()", _interfaceName];
+        
+        __weak typeof(*&self) wSelf = self;
+        [self.webController xmn_evaluateJavaScript:js
+                                   completionBlock:^(NSString * _Nonnull result, NSError * _Nonnull error) {
+                                       __strong typeof(*&wSelf) self = wSelf;
+                                       NSArray * queue = [result xmn_objectFromJSONString];
+                                       if ([queue isKindOfClass:[NSArray class]]) {
+                                           [self processMessageQueue:queue];
+                                       }
+                                   }];
+        return NO;
+    }
+    return YES;
+}
+
+
+- (void)actionDidFinish:(XMNJSBridgeAction *)action
+                success:(BOOL)success
+                 result:(NSString *)result {
+    
+    if (![self.actions containsObject:action]) return;
+    
+    [self.actions removeObject:action];
+    
+    [self sendCallbackForMessage:action.message success:success result:result];
+}
 
 #pragma mark - Private Method
 
+
+/**
+ 处理需要执行的消息队列
+ 
+ @param queue 需要处理的消息队列
+ */
+- (void)processMessageQueue:(NSArray<NSDictionary *> *)queue {
+    
+    for (NSDictionary * dict in queue) {
+        
+        XMNJSBridgeMessage * message = [[XMNJSBridgeMessage alloc] initWithDictionary:dict];
+        [self processMessage:message];
+    }
+}
+
+
+/**
+ 处理消息队列中的单条消息
+
+ @param message 需要处理的消息
+ */
+- (void)processMessage:(XMNJSBridgeMessage *)message {
+    
+    /** 获取消息对应的action 处理类 */
+    XMNJSBridgeAction * action = nil;
+    Class klass = [XMNJSBridgeAction actionClassForActionName:message.action];
+    
+    if (klass) {
+        
+        action = [[klass alloc] initWithBridge:self
+                                       message:message];
+    }
+    
+    if (action) {
+        /** 找到action, 执行action */
+        [_actions addObject:action];
+        [action startAction];
+    } else {
+        /** 未找到处理action的Class */
+        [self sendCallbackForMessage:message
+                             success:NO
+                              result:nil];
+    }
+}
+
+/**
+ 执行消息回到callBack
+
+ @param message 回调的消息
+ @param success 是否成功
+ @param result  消息处理结果
+ */
+- (void)sendCallbackForMessage:(XMNJSBridgeMessage *)message
+                       success:(BOOL)success
+                        result:(NSDictionary *)result {
+    
+    if (!message.callbackID) {
+        /** message 没有callBackID 无需回调*/
+        return;
+    }
+    NSDictionary * callback = @{@"params": result ? : @{},
+                                @"failed": @(!success),
+                                @"callback_id": message.callbackID};
+    NSString * js = [NSString stringWithFormat:@"%@._handleMessage(%@)", _interfaceName, callback.xmn_JSONString];
+    [self.webController xmn_evaluateJavaScript:js completionBlock:NULL];
+}
 
 #pragma mark - Setter
 
