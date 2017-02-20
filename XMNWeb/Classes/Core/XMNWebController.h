@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 
+#import "XMNWebViewUserScript.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface XMNWebController : UIViewController
@@ -35,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param URL originURL
  @return nil or XMNWebController实例
  */
-- (nullable instancetype)initWithURL:(NSURL *)URL NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithURL:(nullable NSURL *)URL NS_DESIGNATED_INITIALIZER;
 
 /**
  初始化方法
@@ -44,15 +46,30 @@ NS_ASSUME_NONNULL_BEGIN
  @param options  默认配置
  @return nil or XMNWebController实例
  */
-- (nullable instancetype)initWithURL:(NSURL *)URL
+- (nullable instancetype)initWithURL:(nullable NSURL *)URL
                              options:(nullable NSDictionary *)options NS_DESIGNATED_INITIALIZER;
+
+/**
+ 初始化UI界面  包括webView,processView
+
+ */
+- (void)setupUI;
+
+
+/**
+ 对webView 进行配置
+ setupUI完成后调用, 可以添加JS,添加需要执行的脚本等
+ 
+ @param webView 需要配置的webView
+ */
+- (void)configWebView:(WKWebView *)webView;
 
 /**
  加载URL
  如果当前originURL 为nil  则置originURL = URL
  @param URL 需要加载的URL
  */
-- (void)loadWithURL:(NSURL *)URL;
+- (void)loadWithURL:(nullable NSURL *)URL;
 
 /**
  加载URL
@@ -60,17 +77,68 @@ NS_ASSUME_NONNULL_BEGIN
  @param URL     需要加载的URL
  @param timeout 超时时间
  */
-- (void)loadWithURL:(NSURL *)URL
+- (void)loadWithURL:(nullable NSURL *)URL
             options:(nullable NSDictionary *)options;
 
 @end
 
-@interface XMNWebController (XMNWebDeprecated)
+@interface XMNWebController (XMNJS)
 
-- (instancetype)init OBJC_UNAVAILABLE("use initWithURL:");
-- (instancetype)initWithCoder:(NSCoder *)aDecoder OBJC_UNAVAILABLE("use initWithURL:");
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil OBJC_UNAVAILABLE("use initWithURL:");
+/** 当前webControler.webView中添加的所有用户脚本 */
+@property (copy, nonatomic, readonly, nullable) NSArray<WKUserScript *> *userScripts;
+
+/**
+ 执行一段JS代码
+ 
+ @param javaScriptString 需要执行的JS代码
+ @param completionBlock  回调block
+ */
+- (void)xmn_evaluateJavaScript:(NSString *)javaScriptString
+               completionBlock:(nullable void(^)( NSString * _Nullable  result, NSError * _Nullable error))completionBlock;
+
+/**
+ 
+ 添加一点JS脚本
+ 
+ @param userScript 需要添加的JS脚本
+ */
+- (void)xmn_addUserScript:(XMNWebViewUserScript *)userScript;
+
+/**
+ 删除所有手动添加的JS脚本
+ */
+- (void)xmn_removeAllUserScripts;
 
 @end
+
+
+#if DEBUG
+
+@interface XMNWebController (Debug)
+
+/**
+ 增加DEBUG模式下使用的同步加载网页
+ 主要用于Tests 中 等待网页加载完成
+ 
+ @param URL     需要加载的地址
+ @param error   error
+ @return 是否加载成功
+ */
+- (BOOL)xmn_syncLoadURL:(NSURL *)URL error:(NSError **)error;
+
+
+/**
+ DEBUG 模式下 同步获取js执行结果
+
+ @param javascript 需要执行的js
+ @param error      error信息
+ @return js 执行结果 ornil
+ */
+- (NSString *)xmn_syncEvaluateJavascript:(NSString *)javascript
+                                   error:(NSError **)error;
+
+@end
+
+#endif
 
 NS_ASSUME_NONNULL_END

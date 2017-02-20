@@ -8,21 +8,29 @@
 
 #import "XMNWebController.h"
 #import "XMNWebProgressView.h"
-#import "XMNWebMarco.h"
+#import "XMNWebMacro.h"
 
+
+#import "NSObject+XMNJSONKit.h"
 #import "XMNWebController+XMNWebOptions.h"
+
+#ifdef XMNBRIDGE_ENABLED
+    #import "XMNWebController+JSBridge.h"
+#endif
+
 
 static WKProcessPool *kXMNWebPool = nil;
 
+#pragma mark - XMNWebController
+
 @interface XMNWebController ()
 
-@property (assign, nonatomic) NSTimeInterval timeout;
 @property (strong, nonatomic) NSURL *originURL;
 @property (strong, nonatomic) WKWebView *webView;
 @property (strong, nonatomic) XMNWebProgressView *progressView;
 
+@property (assign, nonatomic) NSTimeInterval timeout;
 @property (copy, nonatomic)   NSDictionary *customHeaders;
-
 
 @end
 
@@ -36,26 +44,38 @@ static WKProcessPool *kXMNWebPool = nil;
     kXMNWebPool = [[WKProcessPool alloc] init];
 }
 
+- (instancetype)init {
+    
+    return [self initWithURL:nil options:[XMNWebController webViewOptions]];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+ 
+    return [self initWithURL:nil options:[XMNWebController webViewOptions]];
+}
+
 - (instancetype)initWithURL:(NSURL *)URL {
     
     return [self initWithURL:URL
-                     options:nil];
+                     options:[XMNWebController webViewOptions]];
 }
 
 - (instancetype)initWithURL:(NSURL *)URL
                     options:(nullable NSDictionary *)options {
-    
 
-    
-    if (!URL) {
-        return nil;
-    }
-    
     if (self = [super init]) {
         
-        [self setupUI];
-        [self loadWithURL:URL
-                  options:options];
+        self.originURL = URL;
+        [self parseWebViewOptions:options];
+        
+#if XMNBRIDGE_ENABLED
+        XMNLog(@"XMNWeb support bridge");
+        [self xmn_configJSBridge:[[XMNWebViewJSBridge alloc] initWithWebController:self]];
+#endif
+        
+#if XMNCONSOLE_ENABLED
+        XMNLog(@"XMWeb support console");
+#endif
     }
     return self;
 }
@@ -64,9 +84,23 @@ static WKProcessPool *kXMNWebPool = nil;
 #pragma mark - Override Method
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
 
-    // Do any additional setup after loading the view.
+    [self setupUI];
+    
+    [self configWebView:self.webView];
+
+    if (self.originURL) {
+        /** 本地文件 */
+        if ([self.originURL isFileURL]) {
+            
+            [self loadLocalURL:self.originURL];
+        }else {
+            
+            [self loadRemoteURL:self.originURL];
+        }
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -104,31 +138,24 @@ static WKProcessPool *kXMNWebPool = nil;
 
 - (void)setupUI {
     
-    WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.userContentController = [[WKUserContentController alloc] init];
-    if (iOS10Later && [configuration respondsToSelector:@selector(setDataDetectorTypes:)]) {
-        configuration.dataDetectorTypes = WKDataDetectorTypeAll;
-    }
-    configuration.processPool = kXMNWebPool;
-    
-    WKWebView *webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
-    webView.navigationDelegate = self;
-    webView.UIDelegate = self;
-    
-    [self.view addSubview:self.webView = webView];
+    [self.view addSubview:self.webView];
     
     self.showProgress = YES;
     [self.progressView setProgress:0.f];
 }
 
+- (void)configWebView:(WKWebView *)webView {
+    
+    XMNLog(@"override is you need config cookie for webView");
+}
 
-- (void)loadWithURL:(NSURL *)URL {
+- (void)loadWithURL:(nullable NSURL *)URL {
     
     [self loadWithURL:URL
               options:nil];
 }
 
-- (void)loadWithURL:(NSURL *)URL
+- (void)loadWithURL:(nullable NSURL *)URL
             options:(nullable NSDictionary *)options {
 
     if (!URL) {
@@ -138,42 +165,64 @@ static WKProcessPool *kXMNWebPool = nil;
     if (!self.originURL) {
         self.originURL = URL;
     }
+    
+    if (options) {
+        [self parseWebViewOptions:options];
+    }
 
     /** 本地文件 */
     if ([URL isFileURL]) {
-        if (iOS9Later && [self.webView respondsToSelector:@selector(loadFileURL:allowingReadAccessToURL:)]) {
-            
-            /** 9.0+ */
-            [self.webView loadFileURL:URL
-              allowingReadAccessToURL:[[NSBundle mainBundle] bundleURL]];
+        
+        [self loadLocalURL:URL];
+    }else {
+        
+        [self loadRemoteURL:URL];
+    }
+}
+
+
+#pragma mark - Private Method
+
+- (void)parseWebViewOptions:(NSDictionary *)options {
+    
+    self.timeout = options[XMNWebViewTimeoutKey] ? [options[XMNWebViewTimeoutKey] integerValue] : 20.f;
+    
+    if (options[XMNWebViewCustomHeadersKey] && [options[XMNWebViewCustomHeadersKey] isKindOfClass:[NSDictionary class]]) {
+        self.customHeaders = options[XMNWebViewCustomHeadersKey];
+    }
+}
+
+- (void)loadLocalURL:(NSURL *)URL {
+    
+    if (iOS9Later && [self.webView respondsToSelector:@selector(loadFileURL:allowingReadAccessToURL:)]) {
+        
+        /** 9.0+ */
+        [self.webView loadFileURL:URL
+          allowingReadAccessToURL:[[NSBundle mainBundle] bundleURL]];
+    }else {
+        
+        /** 9.0- 使用loadHTML 方法加载本地文件*/
+        NSError *error;
+        NSString *html = [NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:&error];
+        if (html && html.length && !error) {
+            [self.webView loadHTMLString:html baseURL:[[NSBundle mainBundle] bundleURL]];
         }else {
             
-            /** 9.0- 使用loadHTML 方法加载本地文件*/
-            NSError *error;
-            NSString *html = [NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:&error];
-            if (html && html.length && !error) {
-                [self.webView loadHTMLString:html baseURL:[[NSBundle mainBundle] bundleURL]];
-            }else {
-                
-                NSLog(@"load local file error :%@",[error localizedDescription]);
-            }
+            NSLog(@"load local file error :%@",[error localizedDescription]);
         }
-    }else {
-        self.timeout = options[XMNWebViewTimeoutKey] ? [options[XMNWebViewTimeoutKey] integerValue] : 20.f;
-        
-        if (options[XMNWebViewCustomHeadersKey] && [options[XMNWebViewCustomHeadersKey] isKindOfClass:[NSDictionary class]]) {
-            self.customHeaders = options[XMNWebViewCustomHeadersKey];
-        }
-        
-        NSMutableURLRequest *mutableRequest = [NSMutableURLRequest requestWithURL:URL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:self.timeout];
-        [mutableRequest setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] forHTTPHeaderField:[[NSBundle mainBundle] bundleIdentifier]];
-        if (self.customHeaders) {
-            [self.customHeaders enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-                [mutableRequest setValue:obj ? : @"invalid header" forHTTPHeaderField:key];
-            }];
-        }
-        [self.webView loadRequest:[mutableRequest copy]];
     }
+}
+
+- (void)loadRemoteURL:(NSURL *)URL {
+    
+    NSMutableURLRequest *mutableRequest = [NSMutableURLRequest requestWithURL:URL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:self.timeout];
+    [mutableRequest setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] forHTTPHeaderField:[[NSBundle mainBundle] bundleIdentifier]];
+    if (self.customHeaders) {
+        [self.customHeaders enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            [mutableRequest setValue:obj ? : @"invalid header" forHTTPHeaderField:key];
+        }];
+    }
+    [self.webView loadRequest:[mutableRequest copy]];
 }
 
 #pragma mark - Setter
@@ -220,11 +269,32 @@ static WKProcessPool *kXMNWebPool = nil;
     return _progressView;
 }
 
+- (WKWebView *)webView {
+    
+    if (!_webView) {
+        
+        WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
+        configuration.userContentController = [[WKUserContentController alloc] init];
+        if (iOS10Later && [configuration respondsToSelector:@selector(setDataDetectorTypes:)]) {
+            configuration.dataDetectorTypes = WKDataDetectorTypeAll;
+        }
+        configuration.processPool = kXMNWebPool;
+        
+        _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
+        _webView.navigationDelegate = self;
+        _webView.UIDelegate = self;
+    }
+    return _webView;
+}
+
 - (NSURL *)currentURL {
     
     return self.webView.URL;
 }
+
 @end
+
+#pragma mark - XMNWebController (XMNWebDelegate)
 
 @interface XMNWebController (XMNWebDelegate) <WKUIDelegate, WKNavigationDelegate>
 
@@ -304,6 +374,14 @@ static WKProcessPool *kXMNWebPool = nil;
         return;
     }
     
+#ifdef XMNBRIDGE_ENABLED
+    if (![self.JSBridge shouldContinueWebRequest:navigationAction.request]) {
+        
+        XMNLog(@"URL %@ 在JSBridge 中被拒绝继续请求", navigationAction.request.URL);
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+#endif
     /** 其他请求正常进行 */
     decisionHandler(WKNavigationActionPolicyAllow);
 }
@@ -371,3 +449,126 @@ static WKProcessPool *kXMNWebPool = nil;
     [self showDetailViewController:alertController sender:self];
 }
 @end
+
+#pragma mark - XMNWebController (XMNJS)
+
+@implementation XMNWebController (XMNJS)
+
+- (void)xmn_evaluateJavaScript:(NSString *)javaScriptString
+               completionBlock:(void(^)(NSString * result, NSError * error))completionBlock {
+    
+    [self.webView evaluateJavaScript:javaScriptString
+                   completionHandler:^(id result, NSError * _Nullable error) {
+                       
+                       if (completionBlock) {
+                           NSString * resultString = nil;
+                           if ([result isKindOfClass:[NSString class]]) {
+                               resultString = result;
+                           } else if ([result respondsToSelector:@selector(stringValue)]) {
+                               resultString = [result stringValue];
+                           } else if ([result respondsToSelector:@selector(xmn_JSONString)]) {
+                               resultString = [result xmn_JSONString];
+                           }
+                           completionBlock(resultString, error);
+                       }
+                   }];
+}
+
+- (void)xmn_addUserScript:(XMNWebViewUserScript *)userScript {
+    
+    [self.webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:userScript.source injectionTime:userScript.scriptInjectionTime forMainFrameOnly:userScript.isForMainFrameOnly]];
+}
+
+- (void)xmn_removeAllUserScripts {
+    
+    [self.webView.configuration.userContentController removeAllUserScripts];
+}
+
+- (NSArray<WKUserScript *> *)userScripts {
+    
+    return self.webView.configuration.userContentController.userScripts;
+}
+
+@end
+
+
+
+#if DEBUG
+
+#import <objc/runtime.h>
+
+@interface XMNWebController (Debug)
+
+@property (strong, nonatomic) NSError *loadingError;
+
+@end
+
+@implementation XMNWebController (Debug)
+
+- (BOOL)xmn_syncLoadURL:(NSURL *)URL error:(NSError **)error {
+
+    [self loadWithURL:URL];
+    
+    while (self.webView.isLoading) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+    
+    if (error && self.loadingError) {
+        *error = self.loadingError;
+    }
+    
+    return self.loadingError == nil;
+}
+
+- (NSString *)xmn_syncEvaluateJavascript:(NSString *)javascript
+                                   error:(NSError **)error {
+    
+    __block NSString *result;
+    __block BOOL evaluateFinished = NO;;
+
+    [self xmn_evaluateJavaScript:javascript completionBlock:^(NSString * _Nonnull jsResult, NSError * _Nonnull jsError) {
+        
+        if (!jsError && jsResult) {
+            result = [jsResult copy];
+        }else if(jsError){
+            *error = jsError;
+        }
+        evaluateFinished = YES;
+    }];
+    
+    while (!evaluateFinished) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+    
+    return result;
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    
+    self.loadingError = error;
+    if (error.code == NSURLErrorCancelled) {
+        return;
+    }
+}
+
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    
+    self.loadingError = error;
+    if (error.code == NSURLErrorCancelled) {
+        return;
+    }
+}
+
+- (NSError *)loadingError {
+    
+    return objc_getAssociatedObject(self, @selector(loadingError));
+}
+
+- (void)setLoadingError:(NSError *)loadingError {
+    
+    objc_setAssociatedObject(self, @selector(loadingError), loadingError, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+@end
+
+#endif
