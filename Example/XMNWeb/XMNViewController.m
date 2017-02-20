@@ -8,7 +8,8 @@
 
 #import "XMNViewController.h"
 
-#import "XMNWebController.h"
+#import <XMNWeb/XMNWebController.h>
+#import <XMNWeb/XMNWebController+JSBridge.h>
 
 @interface XMNViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *urlTextField;
@@ -22,10 +23,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-#ifdef XMNBRIDGE_ENABLED
-    NSLog(@"this framework contains jsbridge");
-#endif
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -33,22 +30,17 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
 - (IBAction)openWebAction:(UIButton *)sender {
     
     XMNWebController *webC = [[XMNWebController alloc] initWithURL:[NSURL URLWithString:self.urlTextField.text]];
-    
-    if (webC) {
-        [self.navigationController pushViewController:webC animated:YES];
-    }
+    [self.navigationController pushViewController:webC animated:YES];
+
 }
 - (IBAction)openLocalFile:(UIButton *)sender {
     
-    
-    XMNWebController *webC = [[XMNWebController alloc] initWithURL:[[NSBundle mainBundle] URLForResource:@"test.html" withExtension:nil]];
-    
-    if (webC) {
-        [self.navigationController pushViewController:webC animated:YES];
-    }
+    XMNWebController *webC = [[XMNWebController alloc] initWithURL:[[NSBundle mainBundle] URLForResource:@"XMNJSBridgeTest.html" withExtension:nil]];
+    [self.navigationController pushViewController:webC animated:YES];
 }
 
 @end

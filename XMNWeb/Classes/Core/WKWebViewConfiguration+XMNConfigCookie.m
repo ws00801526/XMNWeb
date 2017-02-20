@@ -9,6 +9,8 @@
 #import "NSHTTPCookie+XMNCookie.h"
 #import "WKWebViewConfiguration+XMNConfigCookie.h"
 
+#import "XMNWebMacro.h"
+
 @implementation NSHTTPCookie (XMNCookiePrivate)
 
 - (NSString *)xmn_configJS {
@@ -63,7 +65,7 @@
     
     if (!cookies || cookies.count == 0) {
         
-        NSLog(@"you dont have any cookie  about names  :%@   \n domains :%@",names, cookies);
+        XMNLog(@"you dont have any cookie  about names  :%@   \n domains :%@",names, cookies);
         return NO;
     }
     
@@ -79,7 +81,7 @@
     }
     if (script.length) {
         
-        NSLog(@"you will set cookie :%@",script);
+        XMNLog(@"you will set cookie :%@",script);
         WKUserScript *cookieInScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
         [self.userContentController addUserScript:cookieInScript];
         return YES;
@@ -105,7 +107,7 @@
     }
     NSString *script = [NSString stringWithFormat:@"document.cookie='%@';\n",configJS];
     if (script && script.length) {
-        NSLog(@"you will set cookie :%@",script);
+        XMNLog(@"you will set cookie :%@",script);
         WKUserScript *cookieInScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
         [self.userContentController addUserScript:cookieInScript];
         return YES;

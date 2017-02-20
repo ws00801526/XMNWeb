@@ -19,7 +19,7 @@
     return [self copy];
 }
 
-- (id)wb_objectFromJSONString {
+- (id)xmn_objectFromJSONString {
     
     NSData * data = [self dataUsingEncoding:NSUTF8StringEncoding];
     return [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:NULL];

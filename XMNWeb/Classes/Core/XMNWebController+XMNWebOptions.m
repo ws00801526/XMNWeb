@@ -8,7 +8,7 @@
 
 #import "XMNWebController+XMNWebOptions.h"
 
-#import "XMNWebMarco.h"
+#import "XMNWebMacro.h"
 
 static NSArray<NSString *> *kXMNWebViewControllerApplicationSchemes;
 static NSArray<NSString *> *kXMNWebViewControllerIgnoredSchemes;

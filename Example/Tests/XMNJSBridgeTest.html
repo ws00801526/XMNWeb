@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <body>
+
+    <button onclick="alertWithMessage('button on click')" > Alert </button>
+    <button onclick="alertWithConfirm('AlertWithConfirm')"> Confirm </button>
+    <button onclick="alertWithPrompt('AlertWithPrompt')"> Prompt </button>
+
+    <button onclick="invokeGetValue">GetValue</button>
+
+    </body>
+
+    <style type="text/css">
+        
+    button {
+        align-self: center;
+        width: 200px;
+        height: 200px;
+        display: block;
+        font-size: 20px
+    }
+
+    </style>
+    <script>
+
+        window.jserrors = [];
+          
+        window.addEventListener('error', function (event) {
+            window.jserrors.push((event && event.message) || 'unknow error');
+        }, false);
+          
+
+        function invokeGetValue() {
+
+            if (window.XMNJSBridge) {
+                window.XMNJSBridge.invoke('getValueTests')
+                return true
+            }else {
+                return false
+            }
+        }
+    
+        /**
+         * [invokeGetValueWithParams JS方法,  原生调用invokei此方法后, 会调起原生相关native方法进行处理, 然后执行callback]
+         * @param  {[type]} params [原生调用JS方法时 传入的参数]
+         * @return {[type]}        [原生是否调用成功JS方法]
+         */
+        function invokeGetValueWithParams(params) {
+                if (window.XMNJSBridge) {
+
+                    //测试能否捕获闭包外 参数
+                    var privateParam = {'bundleID':'com.XMFraker.XMNWeb'}
+                    window.XMNJSBridge.invoke('getValueTests', params, function callback(callbackParams, success) {
+                        if (success) {
+                            finishTests(privateParam);
+                        }else {
+                            finishTests()
+                        }
+                    })
+                    return true
+                }else {
+
+                    return false
+                }
+        }
+
+
+        function finishTests(value) {
+
+            var msg = {};
+            if (value) {
+                msg = {'value' : value}
+            }
+            XMNJSBridge.invoke('finishTests',msg);
+        }
+
+        function alertWithMessage(message) {
+            
+            alert(message);
+        }
+
+        function alertWithConfirm(message) {
+            if (confirm(message)) {
+
+                console.log('you click confirm');
+            }else {
+                console.log('you click cancel');
+            }
+        }
+
+        function alertWithPrompt(message) {
+           
+           var message = prompt(message);
+           console.log('you input ' + message);
+        }
+
+        function bridgeReady () {
+
+            console.log('bridge is ready');
+            // function finishTests (value) {
+            //     var msg = {};
+            //     if (value) {
+            //         msg = {'value': value};
+            //     }
+            //     XMNJSBridge.invoke('finishTests', msg);
+            // }
+            
+            // XMNJSBridge.invoke('getValueTests');  tests no params, callback situation
+            
+            // XMNJSBridge.invoke('getValueTests', null, function (params, success) {
+            //     if (success) {
+            //         finishTests(params && params['value']);
+            //     } else {
+            //         finishTests();
+            //     }Ï
+            // });
+        }   
+          
+        if (window.XMNJSBridge) {
+            bridgeReady();
+        } else {
+            document.addEventListener('XMNJSBridgeReady', bridgeReady, false);
+        }
+    </script>
+</html>

@@ -23,6 +23,9 @@
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		971CB59C1E5565D600920A10 /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 971CB59B1E5565D600920A10 /* test.html */; };
+		976DFED91E56BCB0000B9B4C /* XMNJSBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 976DFED81E56BCB0000B9B4C /* XMNJSBridgeTests.m */; };
+		976DFEDA1E56C0DF000B9B4C /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 971CB59B1E5565D600920A10 /* test.html */; };
+		976DFEDC1E56C4EE000B9B4C /* XMNJSBridgeTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 976DFEDB1E56C4EE000B9B4C /* XMNJSBridgeTest.html */; };
 		977CFC631E54493000E6F03D /* XMNCookieTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 977CFC621E54493000E6F03D /* XMNCookieTests.m */; };
 		B0B66F13A06389217D0AE606 /* Pods_XMNWeb_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61D63AE313748907C3470523 /* Pods_XMNWeb_Tests.framework */; };
 		E6AA9919392192227CA43889 /* Pods_XMNWeb_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 220409234BC93700443C30CE /* Pods_XMNWeb_Example.framework */; };
@@ -67,6 +70,8 @@
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		971CB59B1E5565D600920A10 /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
+		976DFED81E56BCB0000B9B4C /* XMNJSBridgeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMNJSBridgeTests.m; sourceTree = "<group>"; };
+		976DFEDB1E56C4EE000B9B4C /* XMNJSBridgeTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = XMNJSBridgeTest.html; sourceTree = "<group>"; };
 		977CFC621E54493000E6F03D /* XMNCookieTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMNCookieTests.m; sourceTree = "<group>"; };
 		B6C87DA4EA263BEAF2E6B5D0 /* Pods-XMNWeb_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XMNWeb_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-XMNWeb_Example/Pods-XMNWeb_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		D6A6D382E3759EA2D0DE9E25 /* Pods-XMNWeb_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XMNWeb_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-XMNWeb_Tests/Pods-XMNWeb_Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -177,6 +182,8 @@
 			children = (
 				6003F5BB195388D20070C39A /* Tests.m */,
 				977CFC621E54493000E6F03D /* XMNCookieTests.m */,
+				976DFED81E56BCB0000B9B4C /* XMNJSBridgeTests.m */,
+				976DFEDB1E56C4EE000B9B4C /* XMNJSBridgeTest.html */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
 			path = Tests;
@@ -285,6 +292,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				976DFEDC1E56C4EE000B9B4C /* XMNJSBridgeTest.html in Resources */,
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
@@ -297,6 +305,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				976DFEDA1E56C0DF000B9B4C /* test.html in Resources */,
 				6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -413,6 +422,7 @@
 			files = (
 				6003F5BC195388D20070C39A /* Tests.m in Sources */,
 				977CFC631E54493000E6F03D /* XMNCookieTests.m in Sources */,
+				976DFED91E56BCB0000B9B4C /* XMNJSBridgeTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
