@@ -29,11 +29,24 @@ TODO: Add long description of the pod here.
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '8.0'
-  s.default_subspecs = 'Bridge' 
   s.frameworks = 'UIKit', 'WebKit'
+  s.default_subspec = 'Console'
 
-  s.source_files = 'XMNWeb/Classes/Core/**/*'
-  s.public_header_files = 'XMNWeb/Classes/Core/*.h'
+  s.subspec 'Core' do |sp|
+  	sp.source_files = 'XMNWeb/Classes/Core/**/*'
+	sp.public_header_files = 'XMNWeb/Classes/Core/*.h'
+  end
+
+  s.subspec 'Console' do |sp|
+	sp.source_files = 'XMNWeb/Classes/Console/**/*'
+	sp.public_header_files = 'XMNWeb/Classes/Console/*.h'
+	sp.resource_bundles = {
+    'XMNWebConsole' => ['XMNWeb/Assets/Console/**/*']
+	}
+	sp.dependency 'XMNWeb/Bridge'	
+    sp.pod_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
+    sp.user_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
+  end
 
   s.subspec 'Bridge' do |sp|
   	sp.source_files = 'XMNWeb/Classes/Bridge/**/*'
@@ -41,8 +54,8 @@ TODO: Add long description of the pod here.
 	sp.resource_bundles = {
     'XMNWebBridge' => ['XMNWeb/Assets/Bridge/**/*']
 	}
-
-	sp.user_target_xcconfig = {'XMNBRIDGE_ENABLED' => 'YES'}
-	sp.pod_target_xcconfig = {'XMNBRIDGE_ENABLED' => 'YES'}
+	sp.dependency 'XMNWeb/Core'
+    sp.pod_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNBRIDGE_ENABLED=1'}
+    sp.user_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNBRIDGE_ENABLED=1'}
   end
 end
