@@ -110,7 +110,7 @@
     self.contentHeight = self.minHeight = self.font.lineHeight;
     self.maxHeight = CGFLOAT_MAX;
     
-    [super setDelegate:self];
+    [super setDelegate:(id<UITextViewDelegate>)self];
     
     [self showPlaceHolder:(self.text.length == 0)];
 }

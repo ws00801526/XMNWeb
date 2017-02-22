@@ -25,7 +25,7 @@ FOUNDATION_EXTERN_INLINE NSDictionary * __nullable xmn_dictionaryOfValue(id _Nul
  *  @param key 用来获取当前字典对应值的key
  *  @return 当key对应的值为NSString类型时返回该值，没有则返回nil
  */
-- (NSString *)xmn_stringForKey:(NSString *)key;
+- (nullable NSString *)xmn_stringForKey:(NSString *)key;
 
 /*!
  *  返回当前key对应value的NSDictionary值，没有则返回nil
@@ -33,7 +33,7 @@ FOUNDATION_EXTERN_INLINE NSDictionary * __nullable xmn_dictionaryOfValue(id _Nul
  *  @param key 用来获取当前字典对应值的key
  *  @return 返回当前key对应value的NSDictionary值，不存在则返回Nil
  */
-- (NSDictionary *)xmn_dictForKey:(NSString *)key;
+- (nullable NSDictionary *)xmn_dictForKey:(NSString *)key;
 
 /*!
  *  返回当前key对应value的NSArray值，没有则返回nil
@@ -41,7 +41,7 @@ FOUNDATION_EXTERN_INLINE NSDictionary * __nullable xmn_dictionaryOfValue(id _Nul
  *  @param key 用来获取当前字典对应值的key
  *  @return 返回当前key对应value的NSArray值，不存在则返回nil
  */
-- (NSArray *)xmn_arrayForKey:(NSString *)key;
+- (nullable NSArray *)xmn_arrayForKey:(NSString *)key;
 
 /*!
  *  返回当前key对应value的NSInteger值，没有则返回0

@@ -327,8 +327,8 @@ static WKProcessPool *kXMNWebPool = nil;
         configuration.processPool = kXMNWebPool;
         
         _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
-        _webView.navigationDelegate = self;
-        _webView.UIDelegate = self;
+        _webView.navigationDelegate = (id<WKNavigationDelegate>)self;
+        _webView.UIDelegate = (id<WKUIDelegate>)self;
     }
     return _webView;
 }
