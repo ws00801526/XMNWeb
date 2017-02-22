@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param URL originURL
  @return nil or XMNWebController实例
  */
-- (nullable instancetype)initWithURL:(nullable NSURL *)URL NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithURL:(nullable NSURL *)URL;
 
 /**
  初始化方法

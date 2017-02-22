@@ -31,7 +31,7 @@
 
 - (NSString *)xmn_JSONString {
     
-    NSData * data = [NSJSONSerialization dataWithJSONObject:self options:NSJSONReadingMutableContainers error:NULL];
+    NSData * data = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingPrettyPrinted error:NULL];
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
@@ -41,7 +41,7 @@
 
 - (NSString *)xmn_JSONString {
     
-    NSData * data = [NSJSONSerialization dataWithJSONObject:self options:NSJSONReadingMutableContainers error:NULL];
+    NSData * data = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingPrettyPrinted error:NULL];
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 

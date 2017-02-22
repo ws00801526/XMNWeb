@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)actionDidFinish:(XMNJSBridgeAction *)action
                 success:(BOOL)success
-                 result:(NSString *)result;
+                 result:(nullable NSDictionary *)result;
 
 @end
 
