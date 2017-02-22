@@ -83,8 +83,8 @@ typedef NS_ENUM(NSUInteger, XMNURLRouteMode) {
                 UIViewController *nextViewC = viewCs[viewCs.count - 2];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wmissing-declarations"
-                if ([nextViewC isKindOfClass:[XMNWebController class]] || [nextViewC respondsToSelector:@selector(reloadWebContent)]) {
-                    [nextViewC performSelector:@selector(reloadWebContent)];
+                if ([nextViewC isKindOfClass:[XMNWebController class]] || [nextViewC respondsToSelector:@selector(reloadController)]) {
+                    [nextViewC performSelector:@selector(reloadController)];
                 }
 #pragma clang diagnostic pop
             }
@@ -149,7 +149,7 @@ typedef NS_ENUM(NSUInteger, XMNURLRouteMode) {
             
             if (needRefresh) {
                 /** 刷新webContent */
-                [(XMNWebController *)backC reloadWebContent];
+                [(XMNWebController *)backC reloadController];
             }
             
             [self.JSBridge.webController.navigationController popToViewController:backC animated:YES];

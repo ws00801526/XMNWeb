@@ -85,7 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  重新加载当前web内容
  */
-- (void)reloadWebContent;
+- (void)reloadController;
+
 
 @end
 

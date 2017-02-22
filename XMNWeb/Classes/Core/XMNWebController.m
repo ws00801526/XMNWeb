@@ -220,7 +220,7 @@ static WKProcessPool *kXMNWebPool = nil;
     }
 }
 
-- (void)reloadWebContent {
+- (void)reloadController {
     
     [self.webView reload];
 }
