@@ -620,6 +620,10 @@ static WKProcessPool *kXMNWebPool = nil;
 
 @end
 
+#endif
+
+#if XMNCONSOLE_ENABLED
+
 @implementation XMNWebController (ConsoleDebug)
 
 - (void)xmn_webDebugLogInfo:(NSString *)info {
