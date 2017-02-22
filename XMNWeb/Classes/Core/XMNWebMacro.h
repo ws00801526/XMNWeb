@@ -1,13 +1,13 @@
 //
-//  XMNWebMarco.h
+//  XMNWebMacro.h
 //  Pods
 //
 //  Created by XMFraker on 17/2/16.
 //
 //
 
-#ifndef XMNWebMarco_h
-#define XMNWebMarco_h
+#ifndef XMNWebMacro_h
+#define XMNWebMacro_h
 
 #ifndef XMNLog
     #if DEBUG
@@ -15,6 +15,10 @@
     #else
         #define XMNLog(FORMAT,...);
     #endif
+#endif
+
+#ifndef XMN_UNAVAILABLE_MSG
+    #define XMN_UNAVAILABLE_MSG(msg) __attribute__((unavailable(msg)))
 #endif
 
 /// ========================================
@@ -38,9 +42,12 @@
 #endif
 
 
+
+#pragma mark - 相关宏定义
+
 #pragma mark - 相关常量定义
 
 static NSString * const XMNWebViewTimeoutKey = @"com.XMFraker.XMNWeb.XMNWebViewTimeoutKey";
 static NSString * const XMNWebViewCustomHeadersKey = @"com.XMFraker.XMNWeb.XMNWebViewCustomHeaderKey";
 
-#endif /* XMNWebMarco_h */
+#endif /* XMNWebMacro_h */

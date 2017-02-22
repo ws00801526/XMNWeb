@@ -8,11 +8,19 @@
 
 #import "XMNAppDelegate.h"
 
+#import <XMNWeb/XMNTextView.h>
 @implementation XMNAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    
+    
+//    [[XMNTextView appearance] setPlaceHolder:@"Appearance Holder"];
+//    [[XMNTextView appearance] setPlaceHolderColor:[UIColor greenColor]];
+//    [[XMNTextView appearance] setMinHeight:44.f];
+//    [[XMNTextView appearance] setMaxHeight:200.f];
+
     return YES;
 }
 
