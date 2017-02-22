@@ -35,6 +35,7 @@ TODO: Add long description of the pod here.
   s.subspec 'Core' do |sp|
   	sp.source_files = 'XMNWeb/Classes/Core/**/*'
 	sp.public_header_files = 'XMNWeb/Classes/Core/*.h'
+    sp.dependency 'KVOController'
   end
 
   s.subspec 'Console' do |sp|
@@ -43,7 +44,7 @@ TODO: Add long description of the pod here.
 	sp.resource_bundles = {
     'XMNWebConsole' => ['XMNWeb/Assets/Console/**/*']
 	}
-	sp.dependency 'XMNWeb/Bridge'	
+	sp.dependency 'XMNWeb/Bridge'
     sp.pod_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
     sp.user_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
   end

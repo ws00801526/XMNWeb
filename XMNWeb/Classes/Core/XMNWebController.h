@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  对webView 进行配置
  setupUI完成后调用, 可以添加JS,添加需要执行的脚本等
  
+ 默认支持 allowsLinkPreview,allowsBackForwardNavigationGestures
  @param webView 需要配置的webView
  */
 - (void)configWebView:(WKWebView *)webView;
@@ -97,7 +98,6 @@ NS_ASSUME_NONNULL_BEGIN
                completionBlock:(nullable void(^)( NSString * _Nullable  result, NSError * _Nullable error))completionBlock;
 
 /**
- 
  添加一点JS脚本
  
  @param userScript 需要添加的JS脚本
@@ -137,6 +137,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)xmn_syncEvaluateJavascript:(NSString *)javascript
                                    error:(NSError **)error;
 
+@end
+
+#endif
+
+#if XMNCONSOLE_ENABLED
+
+
+@interface XMNWebController (ConsoleDebug)
+
+- (void)xmn_webDebugLogInfo:(NSString *)info;
+
+- (void)xmn_webDebugLogFailedWithError:(NSError *)error;
+
+- (void)xmn_webDebugLogNavigation:(WKNavigationAction *)navigation
+                           result:(BOOL)result;
 @end
 
 #endif

@@ -1,11 +1,13 @@
 PODS:
+  - KVOController (1.2.0)
   - XMNWeb (0.1.0):
     - XMNWeb/Console (= 0.1.0)
   - XMNWeb/Bridge (0.1.0):
     - XMNWeb/Core
   - XMNWeb/Console (0.1.0):
     - XMNWeb/Bridge
-  - XMNWeb/Core (0.1.0)
+  - XMNWeb/Core (0.1.0):
+    - KVOController
 
 DEPENDENCIES:
   - XMNWeb (from `../`)
@@ -15,7 +17,8 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  XMNWeb: 50c58b0e9bde624677c0728f6906f8972e2bdc33
+  KVOController: d72ace34afea42468329623b3379ab3cd1d286b6
+  XMNWeb: d50522bba50c32541cf05f14188ac34726407f22
 
 PODFILE CHECKSUM: 22f1b622dd4d4f6a2ea84a87dc9a72578e293b2c
 

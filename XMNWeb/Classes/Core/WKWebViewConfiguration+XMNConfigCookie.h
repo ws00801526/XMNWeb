@@ -11,7 +11,6 @@
 
 @interface WKWebViewConfiguration (XMNConfigCookie)
 
-
 /**
  *  @brief iOS8+ 使用  WKWebView不会直接使用NSHTTPCookieStorage中的cookie
  *  使用此方法,可以将NSHTTPCookieStorage中的cookie 通过JS方法 写入到webView中

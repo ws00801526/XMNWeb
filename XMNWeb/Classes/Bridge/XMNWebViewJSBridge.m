@@ -40,13 +40,6 @@
         self.interfaceName = @"XMNJSBridge";
         self.readyEventName = @"XMNJSBridgeReady";
         self.invokeScheme = @"xmnjs://invoke";
-        
-        __weak typeof(*&self) wSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-           
-            __strong typeof(*&wSelf) self = wSelf;
-            [self.webController xmn_addUserScript:[XMNWebViewUserScript scriptWithSource:self.javaScriptSource injectionTime:XMNUserScriptInjectionTimeAtDocumentStart mainFrameOnly:NO]];
-        });
     }
     return self;
 }
@@ -192,9 +185,7 @@
     
     if (!_javaScriptSource || _flags.needsUpdate) {
         
-        NSBundle * bundle = [NSBundle bundleWithPath:[NSString stringWithFormat:@"%@/%@", [[NSBundle bundleForClass:[self class]] bundlePath], @"XMNWeb.bundle"]];
-        
-        _javaScriptSource = [[NSString alloc] initWithContentsOfFile:[bundle pathForResource:@"xmnjs" ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
+        _javaScriptSource = [[NSString alloc] initWithContentsOfFile:[XMNWebJSBridgeBundle() pathForResource:@"xmnjs" ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
         NSAssert(_interfaceName, @"interfaceName must not nil");
         NSAssert(_readyEventName, @"readyEventName must not nil");
         NSAssert(_invokeScheme, @"invokeScheme must not nil");

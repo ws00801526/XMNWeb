@@ -9,7 +9,7 @@
 #import "XMNWebController.h"
 #import "XMNWebProgressView.h"
 #import "XMNWebMacro.h"
-
+#import <KVOController/KVOController.h>
 
 #import "NSObject+XMNJSONKit.h"
 #import "XMNWebController+XMNWebOptions.h"
@@ -18,12 +18,16 @@
     #import "XMNWebController+JSBridge.h"
 #endif
 
+#ifdef XMNCONSOLE_ENABLED
+    #import "XMNWebDebugConsoleController.h"
+    #import "XMNWebController+Console.h"
+#endif
 
 static WKProcessPool *kXMNWebPool = nil;
 
 #pragma mark - XMNWebController
 
-@interface XMNWebController ()
+@interface XMNWebController () <UIViewControllerPreviewingDelegate>
 
 @property (strong, nonatomic) NSURL *originURL;
 @property (strong, nonatomic) WKWebView *webView;
@@ -64,23 +68,25 @@ static WKProcessPool *kXMNWebPool = nil;
                     options:(nullable NSDictionary *)options {
 
     if (self = [super init]) {
-        
+
         self.originURL = URL;
         [self parseWebViewOptions:options];
-        
-#if XMNBRIDGE_ENABLED
-        XMNLog(@"XMNWeb support bridge");
-        [self xmn_configJSBridge:[[XMNWebViewJSBridge alloc] initWithWebController:self]];
-#endif
-        
-#if XMNCONSOLE_ENABLED
-        XMNLog(@"XMWeb support console");
-#endif
     }
+    
+#if XMNBRIDGE_ENABLED
+    XMNLog(@"XMNWeb support bridge");
+    [self xmn_configJSBridge:[[XMNWebViewJSBridge alloc] initWithWebController:self]];
+#endif
+    
+#if XMNCONSOLE_ENABLED
+    XMNLog(@"XMWeb support console");
+    [self xmn_configConsole:[[XMNWebViewConsole alloc] initWithWebController:self]];
+#endif
+    
     return self;
 }
 
-    
+
 #pragma mark - Override Method
 
 - (void)viewDidLoad {
@@ -101,13 +107,17 @@ static WKProcessPool *kXMNWebPool = nil;
             [self loadRemoteURL:self.originURL];
         }
     }
+    
+    XMNLog(@"webC will loadURL :%@",self.originURL);
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     
     [super viewWillAppear:animated];
     NSLog(@"%@ viewWillAppear",NSStringFromClass([self class]));
-    self.showProgress ? [self.navigationController.navigationBar addSubview:self.progressView] : nil;
+    if (self.showProgress && !self.progressView.superview) {
+        [self.navigationController.navigationBar addSubview:self.progressView];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -115,7 +125,9 @@ static WKProcessPool *kXMNWebPool = nil;
     [super viewWillDisappear:animated];
     NSLog(@"%@ viewWillDisappear",NSStringFromClass([self class]));
     /** 需要移除progressView */
-    self.showProgress ? [self.progressView removeFromSuperview] : nil;
+    if (self.progressView.superview) {
+        [self.progressView removeFromSuperview];
+    }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
@@ -131,7 +143,7 @@ static WKProcessPool *kXMNWebPool = nil;
 - (void)dealloc {
 
     self.showProgress = NO;
-    NSLog(@"%@  dealloc",self);
+    XMNLog(@"%@  dealloc",self);
 }
 
 #pragma mark - Public Method
@@ -139,14 +151,42 @@ static WKProcessPool *kXMNWebPool = nil;
 - (void)setupUI {
     
     [self.view addSubview:self.webView];
-    
-    self.showProgress = YES;
     [self.progressView setProgress:0.f];
 }
 
 - (void)configWebView:(WKWebView *)webView {
     
     XMNLog(@"override is you need config cookie for webView");
+    
+#if XMNBRIDGE_ENABLED
+    [webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:self.JSBridge.javaScriptSource
+                                                                                      injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                                                                                   forMainFrameOnly:NO]];
+    
+    
+    
+#endif
+    
+#if XMNCONSOLE_ENABLED
+    
+    [webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:self.console.javaScriptSource
+                                                                                      injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                                                                                   forMainFrameOnly:NO]];
+    
+    
+    NSString *prettyJSSource = [NSString stringWithContentsOfFile:[XMNWebConsoleBundle() pathForResource:@"xmn_console_pretty" ofType:@"js"] encoding:NSUTF8StringEncoding error:nil];
+    
+    [webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:prettyJSSource
+                                                                                      injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                                                                                   forMainFrameOnly:NO]];
+
+#endif
+    
+    
+    self.webView.allowsLinkPreview = YES;
+    self.webView.allowsBackForwardNavigationGestures = YES;
+    
+    self.showProgress = YES;
 }
 
 - (void)loadWithURL:(nullable NSURL *)URL {
@@ -233,16 +273,21 @@ static WKProcessPool *kXMNWebPool = nil;
         return;
     }
     _showProgress = showProgress;
-    @try {
-        if (showProgress) {
-            [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
-        }else {
-            [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
-        }
-    } @catch (NSException *exception) {
+    if (showProgress) {
+        __weak typeof(*&self) wSelf = self;
+        [self.KVOControllerNonRetaining observe:self.webView
+                                        keyPath:@"estimatedProgress"
+                                        options:NSKeyValueChangeNewKey
+                                          block:^(id  _Nullable observer, id  _Nonnull object, NSDictionary<NSString *,id> * _Nonnull change) {
+                                              
+                                              __strong typeof(*&wSelf) self = wSelf;
+                                              if ([object isKindOfClass:[WKWebView class]] && [object respondsToSelector:@selector(estimatedProgress)]) {
+                                                  [self.progressView setProgress:[object estimatedProgress] animated:YES];
+                                              }
+                                          }];
+    }else {
         
-    } @finally {
-        
+        [self.KVOControllerNonRetaining unobserveAll];
     }
 }
 
@@ -278,6 +323,7 @@ static WKProcessPool *kXMNWebPool = nil;
         if (iOS10Later && [configuration respondsToSelector:@selector(setDataDetectorTypes:)]) {
             configuration.dataDetectorTypes = WKDataDetectorTypeAll;
         }
+
         configuration.processPool = kXMNWebPool;
         
         _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
@@ -296,7 +342,11 @@ static WKProcessPool *kXMNWebPool = nil;
 
 #pragma mark - XMNWebController (XMNWebDelegate)
 
+#import <objc/runtime.h>
+
 @interface XMNWebController (XMNWebDelegate) <WKUIDelegate, WKNavigationDelegate>
+
+@property (strong, nonatomic) NSError *loadingError;
 
 @end
 
@@ -320,6 +370,11 @@ static WKProcessPool *kXMNWebPool = nil;
     if (error.code == NSURLErrorCancelled) {
         return;
     }
+
+    self.loadingError = error;
+#ifdef XMNCONSOLE_ENABLED
+    [self xmn_webDebugLogFailedWithError:error];
+#endif
 }
 
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
@@ -327,6 +382,10 @@ static WKProcessPool *kXMNWebPool = nil;
     if (error.code == NSURLErrorCancelled) {
         return;
     }
+    self.loadingError = error;
+#ifdef XMNCONSOLE_ENABLED
+    [self xmn_webDebugLogFailedWithError:error];
+#endif
 }
 
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler {
@@ -382,6 +441,11 @@ static WKProcessPool *kXMNWebPool = nil;
         return;
     }
 #endif
+    
+#ifdef XMNCONSOLE_ENABLED
+    [self xmn_webDebugLogNavigation:navigationAction result:YES];
+#endif
+    
     /** 其他请求正常进行 */
     decisionHandler(WKNavigationActionPolicyAllow);
 }
@@ -448,6 +512,18 @@ static WKProcessPool *kXMNWebPool = nil;
                                                       }]];
     [self showDetailViewController:alertController sender:self];
 }
+
+
+- (NSError *)loadingError {
+    
+    return objc_getAssociatedObject(self, @selector(loadingError));
+}
+
+- (void)setLoadingError:(NSError *)loadingError {
+    
+    objc_setAssociatedObject(self, @selector(loadingError), loadingError, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 @end
 
 #pragma mark - XMNWebController (XMNJS)
@@ -476,7 +552,10 @@ static WKProcessPool *kXMNWebPool = nil;
 
 - (void)xmn_addUserScript:(XMNWebViewUserScript *)userScript {
     
-    [self.webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:userScript.source injectionTime:userScript.scriptInjectionTime forMainFrameOnly:userScript.isForMainFrameOnly]];
+    [self.webView.configuration.userContentController addUserScript:[[WKUserScript alloc]
+                                                                     initWithSource:userScript.source
+                                                                     injectionTime:userScript.scriptInjectionTime
+                                                                     forMainFrameOnly:userScript.isForMainFrameOnly]];
 }
 
 - (void)xmn_removeAllUserScripts {
@@ -494,14 +573,6 @@ static WKProcessPool *kXMNWebPool = nil;
 
 
 #if DEBUG
-
-#import <objc/runtime.h>
-
-@interface XMNWebController (Debug)
-
-@property (strong, nonatomic) NSError *loadingError;
-
-@end
 
 @implementation XMNWebController (Debug)
 
@@ -543,30 +614,69 @@ static WKProcessPool *kXMNWebPool = nil;
     return result;
 }
 
-- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+@end
+
+@implementation XMNWebController (ConsoleDebug)
+
+- (void)xmn_webDebugLogInfo:(NSString *)info {
     
-    self.loadingError = error;
-    if (error.code == NSURLErrorCancelled) {
+    [self.console logMessage:info
+                        type:XMNWebViewConsoleMessageTypeLog
+                       level:XMNWebViewConsoleMessageLevelLog
+                      source:XMNWebViewConsoleMessageSourceNative];
+}
+
+- (void)xmn_webDebugLogFailedWithError:(NSError *)error {
+    
+    
+    if ([error.domain isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorCancelled) {
+        /** 忽略取消网络请求错误 */
         return;
     }
-}
-
-- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    NSString * url = error.userInfo[NSURLErrorFailingURLStringErrorKey];
+    NSString * message = nil, * caller = nil;
     
-    self.loadingError = error;
-    if (error.code == NSURLErrorCancelled) {
-        return;
+    if (url) {
+        NSMutableString * m = [NSMutableString string];
+        
+        [m appendFormat:@"domain: %@, ", error.domain];
+        [m appendFormat:@"code: %ld, ", (long)error.code];
+        [m appendFormat:@"reason: %@", error.localizedDescription];
+        
+        message = [m copy];
+        caller = url;
+    } else  {
+        message = error.description;
     }
+    
+    [self.console logMessage:message
+                       level:XMNWebViewConsoleMessageLevelError
+                      source:XMNWebViewConsoleMessageSourceNavigation
+                      caller:caller];
 }
 
-- (NSError *)loadingError {
+- (void)xmn_webDebugLogNavigation:(WKNavigationAction *)navigation
+                           result:(BOOL)result {
     
-    return objc_getAssociatedObject(self, @selector(loadingError));
-}
-
-- (void)setLoadingError:(NSError *)loadingError {
+    if (![[[[navigation request] URL] absoluteString] isEqualToString:[[[navigation request] mainDocumentURL] absoluteString]]) return;
     
-    objc_setAssociatedObject(self, @selector(loadingError), loadingError, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    NSString * message = navigation.request.URL.absoluteString;
+    XMNWebViewConsoleMessageLevel level = result ? XMNWebViewConsoleMessageLevelSuccess : XMNWebViewConsoleMessageLevelWarning;
+    NSString * caller;
+    switch ([navigation navigationType]) {
+        case WKNavigationTypeReload: caller = @"reload"; break;
+        case WKNavigationTypeFormSubmitted: caller = @"from submit"; break;
+        case WKNavigationTypeFormResubmitted: caller = @"from resubmit"; break;
+        case WKNavigationTypeLinkActivated: caller = @"link click"; break;
+        case WKNavigationTypeBackForward: caller = @"back/forward"; break;
+        default:
+            break;
+    }
+    if (caller) {
+        caller = [NSString stringWithFormat:@"triggered by :%@",caller];
+    }
+ 
+    [self.console logMessage:message level:level source:XMNWebViewConsoleMessageSourceNavigation caller:caller];
 }
 
 @end

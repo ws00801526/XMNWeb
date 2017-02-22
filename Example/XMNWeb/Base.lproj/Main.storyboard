@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="RIJ-t9-BPZ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="rsc-Po-3kY">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -67,12 +67,13 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tc2-Qw-aMS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="788" y="389.95502248875567"/>
+            <point key="canvasLocation" x="1727.2" y="389.95502248875567"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Item-->
         <scene sceneID="x81-t4-aEj">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="RIJ-t9-BPZ" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="g1j-ZE-aos"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="RcZ-lS-1Aq">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -85,7 +86,64 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="90W-ep-xTk" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="788" y="389.95502248875567"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="Vsl-h1-uic">
+            <objects>
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="rsc-Po-3kY" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="Tca-rr-2Y1">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="RIJ-t9-BPZ" kind="relationship" relationship="viewControllers" id="TCX-wb-pFf"/>
+                        <segue destination="kbM-VN-nrO" kind="relationship" relationship="viewControllers" id="wKl-Bk-qZL"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Mxc-Jh-938" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
             <point key="canvasLocation" x="-151.19999999999999" y="389.95502248875567"/>
+        </scene>
+        <!--Item-->
+        <scene sceneID="vBS-CB-iEJ">
+            <objects>
+                <viewController id="kbM-VN-nrO" customClass="XMNTextController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="OOh-TC-oRE"/>
+                        <viewControllerLayoutGuide type="bottom" id="a4M-fg-tPo"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="k0B-MX-92n">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="50" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="MMT-EL-SaA" customClass="XMNTextView">
+                                <rect key="frame" x="0.0" y="568" width="375" height="50"/>
+                                <color key="backgroundColor" red="0.8666666666666667" green="0.8666666666666667" blue="0.8666666666666667" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="placeHolder" value="Default"/>
+                                </userDefinedRuntimeAttributes>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="MMT-EL-SaA" firstAttribute="leading" secondItem="k0B-MX-92n" secondAttribute="leading" id="1mc-vW-A20"/>
+                            <constraint firstItem="a4M-fg-tPo" firstAttribute="top" secondItem="MMT-EL-SaA" secondAttribute="bottom" id="Py1-bg-EnH"/>
+                            <constraint firstAttribute="trailing" secondItem="MMT-EL-SaA" secondAttribute="trailing" id="ztb-ak-ASn"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Item" id="bp0-Th-hTw"/>
+                    <navigationItem key="navigationItem" id="sMY-z2-nDB"/>
+                    <connections>
+                        <outlet property="textView" destination="MMT-EL-SaA" id="YdD-B4-J7K"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="F4I-Zj-DC5" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="788" y="1153.6731634182909"/>
         </scene>
     </scenes>
 </document>

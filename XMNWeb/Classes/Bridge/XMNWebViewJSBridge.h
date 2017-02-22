@@ -64,4 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+inline static NSBundle * XMNWebJSBridgeBundle()
+{
+    return [NSBundle bundleWithPath:[NSString stringWithFormat:@"%@/%@", [NSBundle bundleForClass:[XMNWebViewJSBridge class]].bundlePath, @"XMNWebBridge.bundle"]];
+}
+
 NS_ASSUME_NONNULL_END

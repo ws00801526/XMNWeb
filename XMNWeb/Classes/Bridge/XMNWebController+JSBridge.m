@@ -24,5 +24,4 @@
     
     return objc_getAssociatedObject(self, @selector(JSBridge));
 }
-
 @end
