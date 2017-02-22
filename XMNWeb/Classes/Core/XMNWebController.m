@@ -161,7 +161,7 @@ static WKProcessPool *kXMNWebPool = nil;
 #if XMNBRIDGE_ENABLED
     [webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:self.JSBridge.javaScriptSource
                                                                                       injectionTime:WKUserScriptInjectionTimeAtDocumentStart
-                                                                                   forMainFrameOnly:NO]];
+                                                                                   forMainFrameOnly:YES]];
     
     
     
@@ -171,14 +171,14 @@ static WKProcessPool *kXMNWebPool = nil;
     
     [webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:self.console.javaScriptSource
                                                                                       injectionTime:WKUserScriptInjectionTimeAtDocumentStart
-                                                                                   forMainFrameOnly:NO]];
+                                                                                   forMainFrameOnly:YES]];
     
     
     NSString *prettyJSSource = [NSString stringWithContentsOfFile:[XMNWebConsoleBundle() pathForResource:@"xmn_console_pretty" ofType:@"js"] encoding:NSUTF8StringEncoding error:nil];
     
     [webView.configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:prettyJSSource
                                                                                       injectionTime:WKUserScriptInjectionTimeAtDocumentStart
-                                                                                   forMainFrameOnly:NO]];
+                                                                                   forMainFrameOnly:YES]];
 
 #endif
     
@@ -220,6 +220,10 @@ static WKProcessPool *kXMNWebPool = nil;
     }
 }
 
+- (void)reloadWebContent {
+    
+    [self.webView reload];
+}
 
 #pragma mark - Private Method
 
@@ -408,7 +412,7 @@ static WKProcessPool *kXMNWebPool = nil;
     if ([[XMNWebController applicatonURLSchemes] containsObject:scheme]) {
         /** 该请求 是可以呗UIApplication 打开的请求的请求,不在继续用webView打开 */
         if (iOS10Later && [[UIApplication sharedApplication] respondsToSelector:@selector(openURL:options:completionHandler:)]) {
-            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:nil completionHandler:NULL];
+            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:kNilOptions completionHandler:NULL];
         }else {
             [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
         }

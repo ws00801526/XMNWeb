@@ -81,6 +81,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadWithURL:(nullable NSURL *)URL
             options:(nullable NSDictionary *)options;
 
+
+/**
+ 重新加载当前web内容
+ */
+- (void)reloadWebContent;
+
 @end
 
 @interface XMNWebController (XMNJS)

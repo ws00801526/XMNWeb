@@ -13,10 +13,12 @@
 #import <XMNWeb/XMNWebController+Console.h>
 #import <XMNWeb/XMNWebController+JSBridge.h>
 
+#import "WMWebController.h"
+
 @interface XMNViewController ()
 
 @property (weak, nonatomic) IBOutlet UITextField *urlTextField;
-@property (weak, nonatomic)   XMNWebController *webC;
+@property (weak, nonatomic) WMWebController *webC;
 
 @end
 
@@ -51,7 +53,8 @@
 
 - (IBAction)openWebAction:(UIButton *)sender {
     
-    XMNWebController *webC = [[XMNWebController alloc] initWithURL:[NSURL URLWithString:self.urlTextField.text]];
+    WMWebController *webC = [[WMWebController alloc] initWithURL:[NSURL URLWithString:self.urlTextField.text]];
+    webC.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:self.webC = webC animated:YES];
     
     __weak typeof(*&self) wSelf = self;
