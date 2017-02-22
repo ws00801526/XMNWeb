@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) XMNJSBridgeMessage * message;
 
 - (instancetype)initWithBridge:(XMNWebViewJSBridge *)bridge
-                       message:(XMNJSBridgeMessage *)message;
+                       message:(XMNJSBridgeMessage *)message NS_DESIGNATED_INITIALIZER;
 
 - (void)startAction;
 

@@ -75,7 +75,7 @@
 
 - (void)actionDidFinish:(XMNJSBridgeAction *)action
                 success:(BOOL)success
-                 result:(NSString *)result {
+                 result:(NSDictionary *)result {
     
     if (![self.actions containsObject:action]) return;
     

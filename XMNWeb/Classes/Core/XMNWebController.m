@@ -67,7 +67,7 @@ static WKProcessPool *kXMNWebPool = nil;
 - (instancetype)initWithURL:(NSURL *)URL
                     options:(nullable NSDictionary *)options {
 
-    if (self = [super init]) {
+    if (self = [super initWithNibName:nil bundle:[NSBundle mainBundle]]) {
 
         self.originURL = URL;
         [self parseWebViewOptions:options];

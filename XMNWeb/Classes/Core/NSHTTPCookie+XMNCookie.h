@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return @[NSHTTPCookie]
  */
-+ (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithNames:(NSArray<NSString *> *)names;
++ (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithNames:(nullable NSArray<NSString *> *)names;
 
 
 /**
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return
  */
-+ (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithDomains:(NSArray<NSString *> *)domains;
++ (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithDomains:(nullable NSArray<NSString *> *)domains;
 
 
 /**
@@ -50,8 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return
  */
-+ (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithNames:(NSArray<NSString *> *)names
-                                                   domains:(NSArray<NSString *> *)domains;
++ (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithNames:(nullable NSArray<NSString *> *)names
+                                                   domains:(nullable NSArray<NSString *> *)domains;
 @end
 
 

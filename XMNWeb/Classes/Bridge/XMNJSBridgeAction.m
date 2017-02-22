@@ -54,6 +54,10 @@ NSString * const XMNJSBridgeActionClassNamePrefix = @"XMNJSBridgeAction";
 
 + (Class)actionClassForActionName:(NSString *)actionName {
     
+    if (!actionName || !actionName.length) {
+        return  NULL;
+    }
+    
     actionName = [actionName stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[actionName substringToIndex:1].capitalizedString];
     
     NSString * actionClassName = [NSString stringWithFormat:@"%@%@", XMNJSBridgeActionClassNamePrefix, actionName];
