@@ -324,13 +324,14 @@ static WKProcessPool *kXMNWebPool = nil;
         
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
         configuration.userContentController = [[WKUserContentController alloc] init];
-        if (iOS10Later && [configuration respondsToSelector:@selector(setDataDetectorTypes:)]) {
-            configuration.dataDetectorTypes = WKDataDetectorTypeAll;
-        }
+//        if (iOS10Later && [configuration respondsToSelector:@selector(setDataDetectorTypes:)]) {
+//            configuration.dataDetectorTypes = WKDataDetectorTypeAll;
+//        }
 
         configuration.processPool = kXMNWebPool;
         
         _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
+        _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _webView.navigationDelegate = (id<WKNavigationDelegate>)self;
         _webView.UIDelegate = (id<WKUIDelegate>)self;
     }
