@@ -365,7 +365,7 @@ static WKProcessPool *kXMNWebPool = nil;
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     
-    if (!self.navigationItem.title) {
+    if (!self.navigationItem.title || !self.navigationItem.title.length) {
         self.navigationItem.title = webView.title;
     }
 }
