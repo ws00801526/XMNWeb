@@ -182,8 +182,10 @@ static WKProcessPool *kXMNWebPool = nil;
 
 #endif
     
-    
-    self.webView.allowsLinkPreview = YES;
+    /** !!! BUG #修复webView只能在iOS10上设置allowsLinkPreview# Fixed on version:0.1.4 date:2017-03-07 */
+    if (iOS10Later && [self.webView respondsToSelector:@selector(setAllowsLinkPreview:)]) {
+        self.webView.allowsLinkPreview = YES;
+    }
     self.webView.allowsBackForwardNavigationGestures = YES;
     
     self.showProgress = YES;
