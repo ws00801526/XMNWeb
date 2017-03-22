@@ -118,6 +118,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/** 暴露XMNWebController实现的 WKUIDelegate, WKNavigationDelegate 接口,供子类重写*/
+@interface XMNWebController (XMNWebDelegate) <WKUIDelegate, WKNavigationDelegate>
+
+@property (strong, nonatomic, readonly) NSError *loadingError;
+
+@end
+
 
 #if DEBUG
 
