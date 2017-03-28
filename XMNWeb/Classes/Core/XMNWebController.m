@@ -265,7 +265,7 @@ static WKProcessPool *kXMNWebPool = nil;
     [mutableRequest setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] forHTTPHeaderField:[[NSBundle mainBundle] bundleIdentifier]];
     if (self.customHeaders) {
         [self.customHeaders enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            [mutableRequest setValue:obj ? : @"invalid header" forHTTPHeaderField:key];
+            [mutableRequest addValue:obj ? : @"invalid header" forHTTPHeaderField:key];
         }];
     }
     [self.webView loadRequest:[mutableRequest copy]];
