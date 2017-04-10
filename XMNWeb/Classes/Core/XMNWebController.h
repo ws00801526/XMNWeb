@@ -8,8 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
-
-#import "XMNWebViewUserScript.h"
+#import <XMNWeb/XMNWebViewUserScript.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,6 +114,34 @@ NS_ASSUME_NONNULL_BEGIN
  删除所有手动添加的JS脚本
  */
 - (void)xmn_removeAllUserScripts;
+
+
+#pragma mark - Class Method
+
+/**
+ *  重置WKWebProgressPool
+ *  用于立即更新缓存
+ */
++ (void)resetProcessPool:(WKProcessPool *)processPool;
+
+/**
+ 获取当前使用的progressPool
+ 
+ @return WKProcessPool 实例
+ */
++ (WKProcessPool *)processPool;
+
+/**
+ *  清空所有缓存
+ */
++ (void)removeAllCaches;
+
+/**
+ 清空对应缓存类型的缓存数据
+
+ @param dataTypes 需要清空的缓存数据 参考  WKWebsiteDataStore
+ */
++ (void)removeCahcesWithDataTypes:(NSSet <NSString *> *)dataTypes;
 
 @end
 

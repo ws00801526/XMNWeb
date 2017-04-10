@@ -23,7 +23,8 @@
     #import "XMNWebController+Console.h"
 #endif
 
-static WKProcessPool *kXMNWebPool = nil;
+static WKProcessPool *kXMNWebPool;
+static dispatch_queue_t kXMNProcessQueue;
 
 #pragma mark - XMNWebController
 
@@ -46,6 +47,7 @@ static WKProcessPool *kXMNWebPool = nil;
 + (void)initialize {
     
     kXMNWebPool = [[WKProcessPool alloc] init];
+    kXMNProcessQueue = dispatch_queue_create("com.xmfraker.xmnweb.queue", DISPATCH_QUEUE_CONCURRENT);
 }
 
 - (instancetype)init {
@@ -326,11 +328,7 @@ static WKProcessPool *kXMNWebPool = nil;
         
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
         configuration.userContentController = [[WKUserContentController alloc] init];
-//        if (iOS10Later && [configuration respondsToSelector:@selector(setDataDetectorTypes:)]) {
-//            configuration.dataDetectorTypes = WKDataDetectorTypeAll;
-//        }
-
-        configuration.processPool = kXMNWebPool;
+        configuration.processPool = [XMNWebController processPool];
         
         _webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:configuration];
         _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -345,6 +343,33 @@ static WKProcessPool *kXMNWebPool = nil;
     return self.webView.URL;
 }
 
+/**
+ *  重置WKWebProgressPool
+ *  用于立即更新缓存
+ */
++ (void)resetProcessPool:(WKProcessPool *)processPool {
+    
+    NSAssert(processPool, @"process pool cannot be nil");
+    dispatch_barrier_async(kXMNProcessQueue, ^{
+       
+        kXMNWebPool = processPool;
+    });
+}
+
+/**
+ 获取当前使用的progressPool
+ 
+ @return WKProcessPool 实例
+ */
++ (WKProcessPool *)processPool {
+
+    __block WKProcessPool *pool;
+    dispatch_barrier_sync(kXMNProcessQueue, ^{
+       
+        pool = kXMNWebPool;
+    });
+    return pool;
+}
 @end
 
 #pragma mark - XMNWebController (XMNWebDelegate)
