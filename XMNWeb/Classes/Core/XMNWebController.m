@@ -370,6 +370,69 @@ static dispatch_queue_t kXMNProcessQueue;
     });
     return pool;
 }
+
++ (void)removeAllCaches {
+    
+    [self removeAllCahcesOfDataType:XMNWebCacheDataTypeAll];
+}
+
++ (void)removeAllCahcesOfDataType:(XMNWebCacheDataType)dataType {
+    
+    if (iOS9Later) {
+        
+        /** iOS9 + 使用 WKWebsiteDataStore 进行清除缓存*/
+        NSMutableSet *sets = [NSMutableSet set];
+        if (dataType & XMNWebCacheDataTypeCookies == XMNWebCacheDataTypeCookies) {
+            [sets addObject:WKWebsiteDataTypeCookies];
+        }
+        if (dataType & XMNWebCacheDataTypeDiskCache == XMNWebCacheDataTypeDiskCache) {
+            [sets addObject:WKWebsiteDataTypeDiskCache];
+        }
+        if (dataType & XMNWebCacheDataTypeMemoryCache == XMNWebCacheDataTypeMemoryCache) {
+            [sets addObject:WKWebsiteDataTypeMemoryCache];
+        }
+        if (dataType & XMNWebCacheDataTypeLocalStorage == XMNWebCacheDataTypeLocalStorage) {
+            [sets addObject:WKWebsiteDataTypeLocalStorage];
+        }
+        if (dataType & XMNWebCacheDataTypeSessionStorage == XMNWebCacheDataTypeSessionStorage) {
+            [sets addObject:WKWebsiteDataTypeSessionStorage];
+        }
+        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[sets copy] modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] completionHandler:NULL];
+    }
+}
+
++ (void)removeCookiesOfDomains:(NSArray<NSString *> *)domains {
+    
+    if (!domains || !domains.count) {
+        return;
+    }
+    
+    if (iOS9Later) {
+        
+        NSMutableArray *removedRecords = [NSMutableArray array];
+        [[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[NSSet setWithObject:WKWebsiteDataTypeCookies] completionHandler:^(NSArray<WKWebsiteDataRecord *> * records) {
+            [removedRecords addObjectsFromArray:[records filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.displayName in %@",domains]]];
+            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[NSSet setWithObject:WKWebsiteDataTypeCookies] forDataRecords:[removedRecords copy] completionHandler:NULL];
+        }];
+    }
+}
+
++ (void)removeAllCachesOfDomains:(NSArray<NSString *> *)domains {
+    
+    if (!domains || !domains.count) {
+        return;
+    }
+    if (iOS9Later) {
+        
+        NSMutableArray *removedRecords = [NSMutableArray array];
+        [[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] completionHandler:^(NSArray<WKWebsiteDataRecord *> * records) {
+            [removedRecords addObjectsFromArray:[records filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.displayName in %@",domains]]];
+            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] forDataRecords:[removedRecords copy] completionHandler:NULL];
+        }];
+    }
+}
+
+
 @end
 
 #pragma mark - XMNWebController (XMNWebDelegate)

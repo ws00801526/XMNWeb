@@ -41,9 +41,17 @@
     #define iOS10Later ([UIDevice currentDevice].systemVersion.floatValue >= 10.0f)
 #endif
 
+#pragma mark - 相关枚举定义
 
-
-#pragma mark - 相关宏定义
+typedef NS_OPTIONS(NSUInteger, XMNWebCacheDataType) {
+    XMNWebCacheDataTypeNone = 0,
+    XMNWebCacheDataTypeCookies = 1 << 0,
+    XMNWebCacheDataTypeDiskCache = 1 << 1,
+    XMNWebCacheDataTypeMemoryCache = 1 << 2,
+    XMNWebCacheDataTypeLocalStorage = 1 << 3,
+    XMNWebCacheDataTypeSessionStorage = 1 << 4,
+    XMNWebCacheDataTypeAll = 0xffff
+};
 
 #pragma mark - 相关常量定义
 

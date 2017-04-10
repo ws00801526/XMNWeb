@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
+#import <XMNWeb/XMNWebMacro.h>
 #import <XMNWeb/XMNWebViewUserScript.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -133,15 +134,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  *  清空所有缓存
+ *
+ *  @warning 只实现了iOS9+功能  iOS9-不支持
  */
 + (void)removeAllCaches;
 
 /**
  清空对应缓存类型的缓存数据
+ *  @warning 只实现了iOS9+功能  iOS9-不支持
 
- @param dataTypes 需要清空的缓存数据 参考  WKWebsiteDataStore
+ @param dataType 需要清空的缓存数据 参考  XMNWebCacheDataType
  */
-+ (void)removeCahcesWithDataTypes:(NSSet <NSString *> *)dataTypes;
++ (void)removeAllCahcesOfDataType:(XMNWebCacheDataType)dataType;
+
+/**
+ 清除WKWebView 缓存的对应域下的cookie
+ @warning 只实现了iOS9+功能  iOS9-不支持
+ 
+ @param domains 需要删除的domains
+ */
++ (void)removeCookiesOfDomains:(NSArray<NSString *> *)domains;
+
+
+/**
+ 清除对应domains中的所有缓存
+ *  @warning 只实现了iOS9+功能  iOS9-不支持
+
+ @param domains 需要删除的domains
+ */
++ (void)removeAllCachesOfDomains:(NSArray<NSString *> *)domains;
 
 @end
 
