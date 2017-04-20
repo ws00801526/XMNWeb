@@ -48,6 +48,11 @@
     [self.JSBridge actionDidFinish:self success:YES result:result];
 }
 
+- (void)actionWithResult:(nullable NSDictionary *)result {
+    
+    [self.JSBridge actionDidFinish:self success:YES result:result removed:NO];
+}
+
 #pragma mark - Class Method
 
 NSString * const XMNJSBridgeActionClassNamePrefix = @"XMNJSBridgeAction";

@@ -56,6 +56,19 @@ NS_ASSUME_NONNULL_BEGIN
                 success:(BOOL)success
                  result:(nullable NSDictionary *)result;
 
+/**
+ action执行完成后,提供给action进行回调的方法
+ 
+ @param action   执行的action
+ @param success  是否执行成功
+ @param result   执行结果
+ @param removed  是否移除action
+ */
+- (void)actionDidFinish:(XMNJSBridgeAction *)action
+                success:(BOOL)success
+                 result:(NSDictionary *)result
+                removed:(BOOL)shouldRemoved;
+
 @end
 
 @interface XMNWebViewJSBridge (XMNWebDeprecated)

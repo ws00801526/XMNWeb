@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startAction;
 
+- (void)actionWithResult:(nullable NSDictionary *)result;
 - (void)actionSuccessedWithResult:(nullable NSDictionary *)result;
 - (void)actionFailed;
 

@@ -77,10 +77,19 @@
                 success:(BOOL)success
                  result:(NSDictionary *)result {
     
+    [self actionDidFinish:action success:success result:result removed:YES];
+}
+
+- (void)actionDidFinish:(XMNJSBridgeAction *)action
+                success:(BOOL)success
+                 result:(NSDictionary *)result
+                removed:(BOOL)shouldRemoved {
+    
     if (![self.actions containsObject:action]) return;
     
-    [self.actions removeObject:action];
-    
+    if (shouldRemoved) {
+        [self.actions removeObject:action];
+    }
     [self sendCallbackForMessage:action.message success:success result:result];
 }
 
