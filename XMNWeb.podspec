@@ -39,16 +39,16 @@ Pod::Spec.new do |s|
     sp.dependency 'KVOController'
   end
 
-  s.subspec 'Console' do |sp|
-	sp.source_files = 'XMNWeb/Classes/Console/**/*'
-	sp.public_header_files = 'XMNWeb/Classes/Console/*.h'
-	sp.resource_bundles = {
-    'XMNWebConsole' => ['XMNWeb/Assets/Console/**/*']
-	}
-	sp.dependency 'XMNWeb/Bridge'
-    sp.pod_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
-    sp.user_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
-  end
+#  s.subspec 'Console' do |sp|
+#	sp.source_files = 'XMNWeb/Classes/Console/**/*'
+#	sp.public_header_files = 'XMNWeb/Classes/Console/*.h'
+#	sp.resource_bundles = {
+#   'XMNWebConsole' => ['XMNWeb/Assets/Console/**/*']
+#	}
+#	sp.dependency 'XMNWeb/Bridge'
+#   sp.pod_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
+#   sp.user_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => 'XMNCONSOLE_ENABLED=1'}
+# end
 
   s.subspec 'Bridge' do |sp|
   	sp.source_files = 'XMNWeb/Classes/Bridge/**/*'

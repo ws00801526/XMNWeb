@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
  加载URL
 
  @param URL     需要加载的URL
- @param timeout 超时时间
+ @param options 配置
  */
 - (void)loadWithURL:(nullable NSURL *)URL
             options:(nullable NSDictionary *)options;

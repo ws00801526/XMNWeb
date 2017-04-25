@@ -20,8 +20,17 @@
 
 #pragma mark - Life Cycle
 
+- (instancetype)init {
+    
+    return [self initWithBridge:[[XMNWebViewJSBridge alloc] init]
+                        message:[[XMNJSBridgeMessage alloc] initWithDictionary:@{}]];
+}
+
 - (instancetype)initWithBridge:(XMNWebViewJSBridge *)bridge
                        message:(XMNJSBridgeMessage *)message {
+    
+    NSAssert(bridge, @"initJSBridgeAction bridge should not be nil");
+    NSAssert(message, @"initJSBridgeAction message should not be nil");
     
     if (self = [super init]) {
      

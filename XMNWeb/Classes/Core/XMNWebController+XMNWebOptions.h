@@ -30,7 +30,7 @@
  *  @brief 如果网络请求urlscheme 在applicationURLSchemes中
  *  会使用[[UIApplication sharedApplication] openURL:] 调起当前请求
  *  默认处理下列协议 @[@"alipay",@"alipays",@"weixin",@"wechat",@"tel",@"mailto",@"itms-appss"]
- *  @return
+ *  @return @[NSString]
  */
 + (nonnull NSArray <NSString *> *)applicatonURLSchemes;
 
@@ -44,7 +44,7 @@
 /**
  *  @brief 如果请求scheme 在ignoreURLSchemes中,则忽略该请求
  *
- *  @return
+ *  @return @[NSString]
  */
 + (nullable NSArray <NSString *> *)ignoreURLSchemes;
 
@@ -58,14 +58,14 @@
 /**
  *  @brief 如果请求scheme 在ignoreURLHosts中,则忽略该请求
  *
- *  @return
+ *  @return @[NSString]
  */
 + (nullable NSArray <NSString *> *)ignoreURLHosts;
 
 /**
  *  @brief 设置可以被忽略的url host
  *
- *  @param schemes 可为空
+ *  @param hosts 可为空
  */
 + (void)setIgnoreHosts:(nullable NSArray *)hosts;
 

@@ -28,6 +28,12 @@
 
 #pragma mark - Life Cycle
 
+- (instancetype)init {
+    
+    NSAssert(NO, @"use initWithWebController: instead");
+    return [self initWithWebController:[[XMNWebController alloc] init]];
+}
+
 - (instancetype)initWithWebController:(XMNWebController *)webC {
     
     NSAssert(webC, @"webController can not be nil while init JSBridge");
@@ -43,7 +49,6 @@
     }
     return self;
 }
-
 
 #pragma mark - Public Method
 

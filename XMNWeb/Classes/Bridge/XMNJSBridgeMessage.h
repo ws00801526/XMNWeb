@@ -17,20 +17,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSDictionary * parameters;
 @property (nonatomic, copy, readonly) NSString * callbackID;
 
-
 /**
  初始化方法
 
  @param dict 相关参数
  @return XMNJSBridgeMessage 实例
  */
-- (instancetype)initWithDictionary:(NSDictionary *)dict;
-
-@end
-
-@interface XMNJSBridgeMessage (Deprecated)
-
-- (instancetype)init XMN_UNAVAILABLE_MSG("use initWithDictionary:");
+- (instancetype)initWithDictionary:(NSDictionary *)dict NS_DESIGNATED_INITIALIZER;
 
 @end
 

@@ -30,10 +30,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface XMNJSBridgeAction (Deprecated)
-
-- (instancetype)init XMN_UNAVAILABLE_MSG("use initWithBridge:message:");
-
-@end
-
 NS_ASSUME_NONNULL_END

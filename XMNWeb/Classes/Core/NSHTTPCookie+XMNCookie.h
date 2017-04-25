@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param domains 指定cookie.name
  
- @return
+ @return @[NSHTTPCookie]
  */
 + (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithDomains:(nullable NSArray<NSString *> *)domains;
 
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param names   指定cookie.name
  @param domains 指定cookie.domain
  
- @return
+ @return @[NSHTTPCookie]
  */
 + (nullable NSArray<NSHTTPCookie *> *)xmn_cookiesWithNames:(nullable NSArray<NSString *> *)names
                                                    domains:(nullable NSArray<NSString *> *)domains;
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  存储cookies
  
- @param names @[cookie.name]
+ @param  names @[cookie.name]
  @return cookies 被存储起来的cookies
  */
 + (nullable NSArray<NSDictionary *> *)xmn_storeCookiesWithNames:(nullable NSArray<NSString *> *)names;
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  存储cookies
  
- @param names @[cookie.domain]
+ @param domains @[cookie.domain]
  
  @return cookies 被存储起来的cookies
  */
@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  删除cookies
  
- @param names @[cookie.domain]
+ @param domains @[cookie.domain]
  */
 + (void)xmn_deleteCookiesWithDomains:(nullable NSArray<NSString *> *)domains;
 

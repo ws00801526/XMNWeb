@@ -18,6 +18,11 @@
 
 @implementation XMNJSBridgeMessage
 
+- (instancetype)init {
+    
+    return [self initWithDictionary:@{}];
+}
+
 - (instancetype)initWithDictionary:(NSDictionary *)dict {
     
     if (self = [super init]) {
