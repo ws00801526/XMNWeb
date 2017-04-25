@@ -155,7 +155,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)removeCookiesOfDomains:(NSArray<NSString *> *)domains;
 
-
 /**
  清除对应domains中的所有缓存
  *  @warning 只实现了iOS9+功能  iOS9-不支持

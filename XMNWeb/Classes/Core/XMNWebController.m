@@ -47,13 +47,18 @@ static dispatch_queue_t kXMNProcessQueue;
 + (void)initialize {
     
     /** 增加pool缓存,保证app重启后 依然使用者之前缓存 */
-    kXMNWebPool = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] dataForKey:@"com.xmfraker.xmnweb.pool"]];
-    if (!kXMNWebPool) {
+    if (iOS9Later) {
+        
+        kXMNWebPool = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] dataForKey:@"com.xmfraker.xmnweb.pool"]];
+        if (!kXMNWebPool) {
+            kXMNWebPool = [[WKProcessPool alloc] init];
+            [[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:kXMNWebPool] forKey:@"com.xmfraker.xmnweb.pool"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+    }else {
+        XMNLog(@"iOS9- unsupport for WKProcessPoll unarchiver");
         kXMNWebPool = [[WKProcessPool alloc] init];
-        [[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:kXMNWebPool] forKey:@"com.xmfraker.xmnweb.pool"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
     }
-    
     kXMNProcessQueue = dispatch_queue_create("com.xmfraker.xmnweb.queue", DISPATCH_QUEUE_CONCURRENT);
 }
 
@@ -64,6 +69,11 @@ static dispatch_queue_t kXMNProcessQueue;
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
  
+    return [self initWithURL:nil options:[XMNWebController webViewOptions]];
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    
     return [self initWithURL:nil options:[XMNWebController webViewOptions]];
 }
 
@@ -292,7 +302,7 @@ static dispatch_queue_t kXMNProcessQueue;
         __weak typeof(*&self) wSelf = self;
         [self.KVOControllerNonRetaining observe:self.webView
                                         keyPath:@"estimatedProgress"
-                                        options:NSKeyValueChangeNewKey
+                                        options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                                           block:^(id  _Nullable observer, id  _Nonnull object, NSDictionary<NSString *,id> * _Nonnull change) {
                                               
                                               __strong typeof(*&wSelf) self = wSelf;
@@ -350,107 +360,11 @@ static dispatch_queue_t kXMNProcessQueue;
     return self.webView.URL;
 }
 
-/**
- *  重置WKWebProgressPool
- *  用于立即更新缓存
- */
-+ (void)resetProcessPool:(WKProcessPool *)processPool {
-    
-    NSAssert(processPool, @"process pool cannot be nil");
-    dispatch_barrier_async(kXMNProcessQueue, ^{
-       
-        kXMNWebPool = processPool;
-    });
-}
-
-/**
- 获取当前使用的progressPool
- 
- @return WKProcessPool 实例
- */
-+ (WKProcessPool *)processPool {
-
-    __block WKProcessPool *pool;
-    dispatch_barrier_sync(kXMNProcessQueue, ^{
-       
-        pool = kXMNWebPool;
-    });
-    return pool;
-}
-
-+ (void)removeAllCaches {
-    
-    [self removeAllCahcesOfDataType:XMNWebCacheDataTypeAll];
-}
-
-+ (void)removeAllCahcesOfDataType:(XMNWebCacheDataType)dataType {
-    
-    if (iOS9Later) {
-        
-        /** iOS9 + 使用 WKWebsiteDataStore 进行清除缓存*/
-        NSMutableSet *sets = [NSMutableSet set];
-        if (dataType & XMNWebCacheDataTypeCookies == XMNWebCacheDataTypeCookies) {
-            [sets addObject:WKWebsiteDataTypeCookies];
-        }
-        if (dataType & XMNWebCacheDataTypeDiskCache == XMNWebCacheDataTypeDiskCache) {
-            [sets addObject:WKWebsiteDataTypeDiskCache];
-        }
-        if (dataType & XMNWebCacheDataTypeMemoryCache == XMNWebCacheDataTypeMemoryCache) {
-            [sets addObject:WKWebsiteDataTypeMemoryCache];
-        }
-        if (dataType & XMNWebCacheDataTypeLocalStorage == XMNWebCacheDataTypeLocalStorage) {
-            [sets addObject:WKWebsiteDataTypeLocalStorage];
-        }
-        if (dataType & XMNWebCacheDataTypeSessionStorage == XMNWebCacheDataTypeSessionStorage) {
-            [sets addObject:WKWebsiteDataTypeSessionStorage];
-        }
-        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[sets copy] modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] completionHandler:NULL];
-    }
-}
-
-+ (void)removeCookiesOfDomains:(NSArray<NSString *> *)domains {
-    
-    if (!domains || !domains.count) {
-        return;
-    }
-    
-    if (iOS9Later) {
-        
-        NSMutableArray *removedRecords = [NSMutableArray array];
-        [[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[NSSet setWithObject:WKWebsiteDataTypeCookies] completionHandler:^(NSArray<WKWebsiteDataRecord *> * records) {
-            [removedRecords addObjectsFromArray:[records filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.displayName in %@",domains]]];
-            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[NSSet setWithObject:WKWebsiteDataTypeCookies] forDataRecords:[removedRecords copy] completionHandler:NULL];
-        }];
-    }
-}
-
-+ (void)removeAllCachesOfDomains:(NSArray<NSString *> *)domains {
-    
-    if (!domains || !domains.count) {
-        return;
-    }
-    if (iOS9Later) {
-        
-        NSMutableArray *removedRecords = [NSMutableArray array];
-        [[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] completionHandler:^(NSArray<WKWebsiteDataRecord *> * records) {
-            [removedRecords addObjectsFromArray:[records filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.displayName in %@",domains]]];
-            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] forDataRecords:[removedRecords copy] completionHandler:NULL];
-        }];
-    }
-}
-
-
 @end
 
 #pragma mark - XMNWebController (XMNWebDelegate)
 
 #import <objc/runtime.h>
-
-@interface XMNWebController (XMNWebDelegate) <WKUIDelegate, WKNavigationDelegate>
-
-@property (strong, nonatomic) NSError *loadingError;
-
-@end
 
 @implementation XMNWebController (XMNWebDelegate)
 
@@ -510,7 +424,7 @@ static dispatch_queue_t kXMNProcessQueue;
     if ([[XMNWebController applicatonURLSchemes] containsObject:scheme]) {
         /** 该请求 是可以呗UIApplication 打开的请求的请求,不在继续用webView打开 */
         if (iOS10Later && [[UIApplication sharedApplication] respondsToSelector:@selector(openURL:options:completionHandler:)]) {
-            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:kNilOptions completionHandler:NULL];
+            [[UIApplication sharedApplication] openURL:navigationAction.request.URL options:@{} completionHandler:NULL];
         }else {
             [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
         }
@@ -656,7 +570,7 @@ static dispatch_queue_t kXMNProcessQueue;
     
     [self.webView.configuration.userContentController addUserScript:[[WKUserScript alloc]
                                                                      initWithSource:userScript.source
-                                                                     injectionTime:userScript.scriptInjectionTime
+                                                                     injectionTime:(WKUserScriptInjectionTime)userScript.scriptInjectionTime
                                                                      forMainFrameOnly:userScript.isForMainFrameOnly]];
 }
 
@@ -668,6 +582,116 @@ static dispatch_queue_t kXMNProcessQueue;
 - (NSArray<WKUserScript *> *)userScripts {
     
     return self.webView.configuration.userContentController.userScripts;
+}
+
+
+#pragma mark - Class Methods
+
+/**
+ *  重置WKWebProgressPool
+ *  用于立即更新缓存
+ */
++ (void)resetProcessPool:(WKProcessPool *)processPool {
+    
+    NSAssert(processPool, @"process pool cannot be nil");
+    dispatch_barrier_async(kXMNProcessQueue, ^{
+        
+        kXMNWebPool = processPool;
+    });
+}
+
+/**
+ 获取当前使用的progressPool
+ 
+ @return WKProcessPool 实例
+ */
++ (WKProcessPool *)processPool {
+    
+    __block WKProcessPool *pool;
+    dispatch_barrier_sync(kXMNProcessQueue, ^{
+        
+        pool = kXMNWebPool;
+    });
+    return pool;
+}
+
++ (void)removeAllCaches {
+    
+    [self removeAllCahcesOfDataType:XMNWebCacheDataTypeAll];
+}
+
++ (void)removeAllCahcesOfDataType:(XMNWebCacheDataType)dataType {
+    
+    if (iOS9Later) {
+        
+        /** iOS9 + 使用 WKWebsiteDataStore 进行清除缓存*/
+        NSMutableSet *sets = [NSMutableSet set];
+        if ((dataType & XMNWebCacheDataTypeCookies) == XMNWebCacheDataTypeCookies) {
+            [sets addObject:WKWebsiteDataTypeCookies];
+        }
+        if ((dataType & XMNWebCacheDataTypeDiskCache) == XMNWebCacheDataTypeDiskCache) {
+            [sets addObject:WKWebsiteDataTypeDiskCache];
+        }
+        if ((dataType & XMNWebCacheDataTypeMemoryCache) == XMNWebCacheDataTypeMemoryCache) {
+            [sets addObject:WKWebsiteDataTypeMemoryCache];
+        }
+        if ((dataType & XMNWebCacheDataTypeLocalStorage) == XMNWebCacheDataTypeLocalStorage) {
+            [sets addObject:WKWebsiteDataTypeLocalStorage];
+        }
+        if ((dataType & XMNWebCacheDataTypeSessionStorage) == XMNWebCacheDataTypeSessionStorage) {
+            [sets addObject:WKWebsiteDataTypeSessionStorage];
+        }
+        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[sets copy]
+                                                   modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+                                               completionHandler:^{
+                                                   XMNLog(@"delete webView cache success");
+                                               }];
+    }else {
+        XMNLog(@"unsupport delete cache before iOS9");
+    }
+}
+
++ (void)removeCookiesOfDomains:(NSArray<NSString *> *)domains {
+    
+    if (!domains || !domains.count) {
+        return;
+    }
+    
+    if (iOS9Later) {
+        
+        NSMutableArray *removedRecords = [NSMutableArray array];
+        [[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[NSSet setWithObject:WKWebsiteDataTypeCookies] completionHandler:^(NSArray<WKWebsiteDataRecord *> * records) {
+            [removedRecords addObjectsFromArray:[records filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.displayName in %@",domains]]];
+            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[NSSet setWithObject:WKWebsiteDataTypeCookies]
+                                                      forDataRecords:[removedRecords copy]
+                                                   completionHandler:^{
+                                                       XMNLog(@"delete webView cookie success");
+                                                   }];
+        }];
+    }else {
+        XMNLog(@"unsupport delete cache before iOS9");
+    }
+}
+
++ (void)removeAllCachesOfDomains:(NSArray<NSString *> *)domains {
+    
+    if (!domains || !domains.count) {
+        return;
+    }
+    if (iOS9Later) {
+        
+        NSMutableArray *removedRecords = [NSMutableArray array];
+        [[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] completionHandler:^(NSArray<WKWebsiteDataRecord *> * records) {
+            [removedRecords addObjectsFromArray:[records filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.displayName in %@",domains]]];
+            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
+                                                      forDataRecords:[removedRecords copy]
+                                                   completionHandler:^{
+                                                       XMNLog(@"delete webView all caches success");
+                                                   }];
+        }];
+    }else {
+        XMNLog(@"unsupport delete cache before iOS9");
+    }
 }
 
 @end
