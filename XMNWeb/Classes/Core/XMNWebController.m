@@ -47,18 +47,7 @@ static dispatch_queue_t kXMNProcessQueue;
 + (void)initialize {
     
     /** 增加pool缓存,保证app重启后 依然使用者之前缓存 */
-    if (iOS9Later) {
-        
-        kXMNWebPool = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] dataForKey:@"com.xmfraker.xmnweb.pool"]];
-        if (!kXMNWebPool) {
-            kXMNWebPool = [[WKProcessPool alloc] init];
-            [[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:kXMNWebPool] forKey:@"com.xmfraker.xmnweb.pool"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }
-    }else {
-        XMNLog(@"iOS9- unsupport for WKProcessPoll unarchiver");
-        kXMNWebPool = [[WKProcessPool alloc] init];
-    }
+    kXMNWebPool = [[WKProcessPool alloc] init];
     kXMNProcessQueue = dispatch_queue_create("com.xmfraker.xmnweb.queue", DISPATCH_QUEUE_CONCURRENT);
 }
 
