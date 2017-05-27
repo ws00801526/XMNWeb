@@ -637,6 +637,10 @@ static dispatch_queue_t kXMNProcessQueue;
                                                }];
     }else {
         XMNLog(@"unsupport delete cache before iOS9");
+        NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@"/Cookies"];
+        NSError *errors;
+        [[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&errors];
     }
 }
 
@@ -659,6 +663,10 @@ static dispatch_queue_t kXMNProcessQueue;
         }];
     }else {
         XMNLog(@"unsupport delete cache before iOS9");
+        NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@"/Cookies"];
+        NSError *errors;
+        [[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&errors];
     }
 }
 
@@ -680,6 +688,10 @@ static dispatch_queue_t kXMNProcessQueue;
         }];
     }else {
         XMNLog(@"unsupport delete cache before iOS9");
+        NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@"/Cookies"];
+        NSError *errors;
+        [[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&errors];
     }
 }
 
