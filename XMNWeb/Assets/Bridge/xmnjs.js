@@ -32,8 +32,8 @@
                 if (!params) {
                     params = {};
                 }
-
-                var callbackID = (_callbackIndex++).toString();
+                _callbackIndex++;
+                var callbackID = (_callbackIndex).toString();
 
                 if (callback) {
                     _callbacks[callbackID] = callback;
