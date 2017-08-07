@@ -11,6 +11,8 @@
 
 #import "XMNWebMacro.h"
 
+static NSDateFormatter *kXMNCookieExpiresDateFormatter;
+
 @implementation NSHTTPCookie (XMNCookiePrivate)
 
 - (NSString *)xmn_configJS {
@@ -24,15 +26,23 @@
         return nil;
     }
     
-    NSString *string = [NSString stringWithFormat:@"%@=%@;domain=%@;path=%@",
-                        self.name,
-                        self.value,
-                        self.domain,
-                        self.path ?: @"/"];
-    if (self.secure) {
-        string = [string stringByAppendingString:@";secure=true"];
+    NSMutableString *cookie = [NSMutableString stringWithFormat:@"%@=%@;path=%@",self.name, self.value, (self.path ? : @"/")];
+    if (self.domain && self.domain.length) {
+        [cookie appendFormat:@";domain=%@",self.domain];
     }
-    return string;
+    if (self.expiresDate) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            kXMNCookieExpiresDateFormatter = [[NSDateFormatter alloc] init];
+            [kXMNCookieExpiresDateFormatter setDateFormat:@"EEE, dd MMM yyyy HH:mm:ss z"];
+        });
+        [cookie appendFormat:@";expires=%@",[kXMNCookieExpiresDateFormatter stringFromDate:self.expiresDate]];
+    }
+    
+    if (self.secure) {
+        [cookie appendFormat:@";secure=true"];
+    }
+    return [cookie copy];
 }
 
 @end
