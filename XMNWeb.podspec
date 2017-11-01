@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'XMNWeb'
-  s.version          = '0.2.3'
+  s.version          = '0.2.5'
   s.summary          = 'XMNWeb provide WKWebView And JS connection'
 
   s.homepage         = 'https://github.com/ws00801526/XMNWeb'
