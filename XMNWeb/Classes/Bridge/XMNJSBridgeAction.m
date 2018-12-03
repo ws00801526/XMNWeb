@@ -77,6 +77,11 @@ NSString * const XMNJSBridgeActionClassNamePrefix = @"XMNJSBridgeAction";
     NSString * actionClassName = [NSString stringWithFormat:@"%@%@", XMNJSBridgeActionClassNamePrefix, actionName];
     Class klass = NSClassFromString(actionClassName);
     
+    if (klass == nil) { // support swift
+        NSString *module = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"];
+        klass = NSClassFromString([NSString stringWithFormat:@"%@.%@", module, actionClassName]);
+    }
+
     if (klass && [klass isSubclassOfClass:[XMNJSBridgeAction class]]) {
         return klass;
     }
